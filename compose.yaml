@@ -1,0 +1,28 @@
+services:
+  nf-price-tracker:
+    # Published by .github/workflows/docker.yml. Swap for `build: .` to run
+    # your working tree instead of the released image.
+    image: ghcr.io/lukanrocks/nf-price-tracker:latest
+    container_name: nf-price-tracker
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    volumes:
+      # The SQLite database. Bind-mounted so it is trivial to back up.
+      - ./data:/app/data
+    environment:
+      # Optional: shows the "Exemplo" button with this QR URL prefilled.
+      # A real note identifies a real person, so keep it in .env, not here.
+      NFCE_SAMPLE_URL: ${NFCE_SAMPLE_URL:-}
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3

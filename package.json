@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "license": "MIT",
+  "packageManager": "pnpm@10.25.0",
   "engines": {
     "node": ">=20"
   },
@@ -11,6 +13,5 @@
     "start": "pnpm --filter @nf-price-tracker/backend start",
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck"
-  },
-  "license": "MIT"
+  }
 }

@@ -41,6 +41,46 @@ pnpm --filter @nf-price-tracker/backend test
 cd backend && pnpm test
 ```
 
+## Running with Docker
+
+A multi-arch image (`linux/amd64`, `linux/arm64`) is published to GHCR by
+[`.github/workflows/docker.yml`](.github/workflows/docker.yml) on every push to
+`main`.
+
+```bash
+docker compose up -d
+```
+
+That pulls `ghcr.io/lukanrocks/nf-price-tracker:latest`, serves the app on
+<http://localhost:3000>, and keeps the SQLite database in `./data` on the host
+so it survives upgrades. To update:
+
+```bash
+docker compose pull && docker compose up -d
+```
+
+To run your working tree instead of the published image, replace the `image:`
+line in [`compose.yaml`](compose.yaml) with `build: .`.
+
+| Setting           | Notes                                                       |
+| ----------------- | ----------------------------------------------------------- |
+| `PORT`            | Host port to publish; defaults to `3000`                     |
+| `NFCE_SAMPLE_URL` | Optional; reveals the "Exemplo" button. Put it in `.env`     |
+| `./data`          | Bind mount holding the database — back this up               |
+
+The container runs as a non-root user, and `/api/health` backs both the
+Dockerfile `HEALTHCHECK` and the compose healthcheck, pinging SQLite so an
+unwritable database fails the check rather than reporting a healthy process.
+
+**First pull:** GHCR packages start private. After the first successful build,
+either make the package public (Packages → nf-price-tracker → Package settings →
+Change visibility) or log the server in with a personal access token that has
+`read:packages`:
+
+```bash
+echo "$GITHUB_TOKEN" | docker login ghcr.io -u LukanRocks --password-stdin
+```
+
 ## Adding an app
 
 Create a top-level folder with a `package.json` named `@nf-price-tracker/<name>` —
@@ -63,6 +103,8 @@ To depend on another workspace package, use the workspace protocol:
 package.json          workspace root: delegating scripts only
 pnpm-workspace.yaml   package globs + native-build approvals
 tsconfig.base.json    compiler options every package extends
+Dockerfile            multi-stage image; no compile step, just dependencies
+compose.yaml          local-server deployment
 backend/              @nf-price-tracker/backend  (see backend/README.md)
 web/                  @nf-price-tracker/web      (see web/README.md)
 ```

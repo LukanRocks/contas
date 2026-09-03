@@ -1,0 +1,24 @@
+# Build context hygiene: keep secrets, local state and host artefacts out of
+# the image (and out of the build cache).
+.git
+.github
+node_modules
+**/node_modules
+
+# Real notes identify real people -- never bake them into an image.
+.env
+data
+*.db
+*.db-shm
+*.db-wal
+*.db-journal
+*.fixture.html
+nfce-fixture.html
+
+# Not needed at runtime
+*.md
+.DS_Store
+Dockerfile
+.dockerignore
+compose.yaml
+docker-compose.yml

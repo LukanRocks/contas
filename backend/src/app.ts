@@ -34,6 +34,18 @@ export function createApp(db: DB) {
   const app = new Hono();
   const api = new Hono();
 
+  // Liveness for container healthchecks: also pings SQLite, so a wedged or
+  // unwritable database fails the check instead of reporting a healthy process.
+  api.get("/health", (c) => {
+    try {
+      db.prepare("SELECT 1").get();
+      return c.json({ status: "ok" }, 200);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      return c.json({ status: "error", message }, 503);
+    }
+  });
+
   // Optional convenience for local testing: a QR URL the web app offers as a
   // one-click example. Unset in a fresh clone -- a real note identifies a real
   // person, so it is never committed.

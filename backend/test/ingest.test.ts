@@ -273,3 +273,19 @@ test("GET /api/nfce/:chave/html returns the captured page, sandboxed", { skip: s
   assert.equal(res.headers.get("x-content-type-options"), "nosniff");
   assert.equal(await res.text(), html(), "serves the stored markup byte for byte");
 });
+
+test("GET /api/health reports ok while the database answers", async (t) => {
+  const db = freshDb(t);
+  const res = await createApp(db).request("/api/health");
+  assert.equal(res.status, 200);
+  assert.deepEqual(await res.json(), { status: "ok" });
+});
+
+test("GET /api/health reports 503 when the database is gone", async (t) => {
+  const db = freshDb(t);
+  const app = createApp(db);
+  db.close(); // simulate a wedged/unavailable database
+  const res = await app.request("/api/health");
+  assert.equal(res.status, 503);
+  assert.equal(((await res.json()) as { status: string }).status, "error");
+});
