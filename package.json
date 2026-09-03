@@ -1,0 +1,16 @@
+{
+  "name": "nf-price-tracker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @nf-price-tracker/backend dev",
+    "start": "pnpm --filter @nf-price-tracker/backend start",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "license": "MIT"
+}

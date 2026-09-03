@@ -1,0 +1,29 @@
+{
+  "name": "@nf-price-tracker/backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "node --watch src/server.ts",
+    "start": "node src/server.ts",
+    "test": "node --env-file-if-exists=../.env --test test/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "fixture:capture": "node scripts/capture-fixture.ts"
+  },
+  "dependencies": {
+    "@hono/node-server": "^2.1.1",
+    "better-sqlite3": "^13.0.3",
+    "cheerio": "^1.2.0",
+    "hono": "^4.13.5",
+    "zod": "^4.5.4"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/node": "^26.4.1",
+    "domhandler": "5.0.3",
+    "typescript": "^7.0.2"
+  }
+}

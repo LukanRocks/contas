@@ -1,0 +1,13 @@
+node_modules/
+dist/
+*.db
+*.db-shm
+*.db-wal
+*.db-journal
+data/
+.DS_Store
+
+# Real notes identify real people -- never commit them.
+.env
+*.fixture.html
+nfce-fixture.html

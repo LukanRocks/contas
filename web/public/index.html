@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>nf-price-tracker — notas fiscais</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' font-size='13'>🧾</text></svg>">
+</head>
+<body>
+  <header class="topbar">
+    <h1>nf-price-tracker</h1>
+    <p class="sub">Notas fiscais escaneadas</p>
+  </header>
+
+  <main>
+    <section class="panel scan">
+      <h2>Testar o fluxo</h2>
+      <p class="hint">Cole a URL do QR code de uma NFC-e e envie para o backend.</p>
+      <form id="scan-form" autocomplete="off">
+        <input
+          id="scan-url"
+          type="url"
+          name="url"
+          placeholder="https://www.fazenda.pr.gov.br/nfce/qrcode?p=..."
+          required
+          spellcheck="false">
+        <button type="submit" id="scan-button">Escanear nota</button>
+        <button type="button" id="sample-button" class="ghost" hidden
+                title="Preencher com a nota de exemplo (defina NFCE_SAMPLE_URL)">
+          Exemplo
+        </button>
+      </form>
+      <output id="scan-status" class="status" role="status" aria-live="polite"></output>
+    </section>
+
+    <div id="view"></div>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>
