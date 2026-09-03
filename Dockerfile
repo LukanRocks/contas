@@ -39,14 +39,15 @@ WORKDIR /app
 
 # The workspace layout is preserved on purpose: the server resolves both the
 # database and the web root relative to its own file, not the cwd.
-COPY --from=builder --chown=node:node /app /app
+COPY --from=builder /app /app
 
 # Mount point for the SQLite database.
-RUN mkdir -p /app/data && chown node:node /app/data
+RUN mkdir -p /app/data
 
-USER node
+# Runs as root, matching the other services on the homelab host: a bind-mounted
+# directory keeps the host's ownership (typically root), and a non-root
+# container could not write to it without a chown on the host first.
 EXPOSE 3000
-VOLUME ["/app/data"]
 
 # No curl in the image; Node's own fetch does the job.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \

@@ -1,6 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createApp } from "../src/app.ts";
+import { chmodSync, mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { openDb, upsertNote, getNote, type DB } from "../src/db.ts";
 import { parsePR } from "../src/parsers/pr.ts";
 import type { ParsedNote } from "../src/types.ts";
@@ -288,4 +291,26 @@ test("GET /api/health reports 503 when the database is gone", async (t) => {
   const res = await app.request("/api/health");
   assert.equal(res.status, 503);
   assert.equal(((await res.json()) as { status: string }).status, "error");
+});
+
+// Root ignores the permission bits this relies on.
+const skipIfRoot = process.getuid?.() === 0 ? "permission checks do not apply to root" : false;
+
+test("opening a database in an unwritable directory explains how to fix it", { skip: skipIfRoot }, (t) => {
+  const dir = mkdtempSync(join(tmpdir(), "nfce-ro-"));
+  chmodSync(dir, 0o500); // read + execute, but not writable
+  t.after(() => {
+    chmodSync(dir, 0o700);
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  assert.throws(
+    () => openDb(join(dir, "sub", "notes.db")),
+    (err: Error) => {
+      assert.match(err.message, /cannot open the database at/);
+      assert.match(err.message, /writable/);
+      assert.match(err.message, /bind-mounted/, "points at the Docker cause");
+      return true;
+    },
+  );
 });

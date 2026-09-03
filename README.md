@@ -68,9 +68,22 @@ line in [`compose.yaml`](compose.yaml) with `build: .`.
 | `NFCE_SAMPLE_URL` | Optional; reveals the "Exemplo" button. Put it in `.env`     |
 | `./data`          | Bind mount holding the database — back this up               |
 
-The container runs as a non-root user, and `/api/health` backs both the
-Dockerfile `HEALTHCHECK` and the compose healthcheck, pinging SQLite so an
-unwritable database fails the check rather than reporting a healthy process.
+`/api/health` backs both the Dockerfile `HEALTHCHECK` and the compose
+healthcheck, pinging SQLite so an unwritable database fails the check rather
+than reporting a healthy process.
+
+The container runs as root, matching the other services on the host it was
+built for. A bind-mounted directory keeps the host's ownership — usually root —
+so a non-root container cannot write to it until you chown the directory on the
+host. If you would rather run unprivileged, set a `user:` in compose and chown
+the data directory to match:
+
+```bash
+sudo chown -R 1000:1000 /path/to/your/data/dir
+```
+
+The server reports the path and the uid when it cannot open the database, so a
+mismatch is obvious from the logs.
 
 **First pull:** GHCR packages start private. After the first successful build,
 either make the package public (Packages → nf-price-tracker → Package settings →

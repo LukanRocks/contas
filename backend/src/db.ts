@@ -45,15 +45,36 @@ CREATE TABLE IF NOT EXISTS note_items (
 CREATE INDEX IF NOT EXISTS idx_note_items_chave ON note_items(chave);
 `;
 
-export function openDb(path: string): DB {
-  if (path !== ":memory:" && !path.startsWith("file:")) {
-    mkdirSync(dirname(path), { recursive: true });
+/** Permission failures surface as a bare SQLITE_CANTOPEN; say what to do instead. */
+function explainOpenFailure(path: string, err: unknown): Error {
+  const code = (err as NodeJS.ErrnoException).code;
+  if (code !== "SQLITE_CANTOPEN" && code !== "EACCES" && code !== "EPERM") {
+    return err instanceof Error ? err : new Error(String(err));
   }
-  const db = new Database(path);
-  db.pragma("journal_mode = WAL");
-  db.pragma("foreign_keys = ON");
-  db.exec(SCHEMA);
-  return db;
+  const uid = process.getuid?.();
+  const who = uid === undefined ? "the current user" : `uid ${uid}:${process.getgid?.()}`;
+  return new Error(
+    `cannot open the database at ${path} (${code}).\n` +
+      `Its directory must exist and be writable by ${who}.\n` +
+      `In Docker, a bind-mounted directory keeps the host's ownership, so chown ` +
+      `it on the host to match the container user.`,
+    { cause: err },
+  );
+}
+
+export function openDb(path: string): DB {
+  try {
+    if (path !== ":memory:" && !path.startsWith("file:")) {
+      mkdirSync(dirname(path), { recursive: true });
+    }
+    const db = new Database(path);
+    db.pragma("journal_mode = WAL");
+    db.pragma("foreign_keys = ON");
+    db.exec(SCHEMA);
+    return db;
+  } catch (err) {
+    throw explainOpenFailure(path, err);
+  }
 }
 
 const NOTE_COLUMNS = [
