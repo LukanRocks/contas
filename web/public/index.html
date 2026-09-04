@@ -16,15 +16,20 @@
   <main>
     <section class="panel scan">
       <h2>Testar o fluxo</h2>
-      <p class="hint">Cole a URL do QR code de uma NFC-e e envie para o backend.</p>
+      <p class="hint">
+        Cole a URL do QR code de uma NFC-e — ou apenas a chave de acesso, como
+        aparece impressa: <code>4126 0906 0572 …</code>
+      </p>
       <form id="scan-form" autocomplete="off">
         <input
           id="scan-url"
-          type="url"
-          name="url"
-          placeholder="https://www.fazenda.pr.gov.br/nfce/qrcode?p=..."
+          type="text"
+          name="nota"
+          inputmode="text"
+          placeholder="URL do QR code, ou a chave de acesso (44 dígitos)"
           required
-          spellcheck="false">
+          spellcheck="false"
+          autocapitalize="off">
         <button type="submit" id="scan-button">Escanear nota</button>
         <button type="button" id="sample-button" class="ghost" hidden
                 title="Preencher com a nota de exemplo (defina NFCE_SAMPLE_URL)">

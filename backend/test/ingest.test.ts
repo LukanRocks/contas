@@ -314,3 +314,65 @@ test("opening a database in an unwritable directory explains how to fix it", { s
     },
   );
 });
+
+/* ---------- ingest by chave (no QR URL available) ---------- */
+
+test("POST /api/nfce accepts a chave printed in groups of four", { skip: skipWithoutFixture }, async (t) => {
+  const db = freshDb(t);
+  const calls = stubFetch(t, html());
+  const app = createApp(db);
+  const n = note();
+
+  const grouped = n.chave.replace(/(\d{4})(?=\d)/g, "$1 ");
+  assert.notEqual(grouped, n.chave, "the pasted form really does contain spaces");
+
+  const res = await postJson(app, { chave: grouped });
+  assert.equal(res.status, 200);
+  assert.deepEqual(counts(db), { notes: 1, items: n.items.length });
+
+  // Fetched from the public consulta URL, which needs the "|3|1" suffix --
+  // the chave alone returns an empty page.
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0], `https://www.fazenda.pr.gov.br/nfce/qrcode?p=${n.chave}%7C3%7C1`);
+
+  const stored = getNote(db, n.chave)!;
+  assert.equal(stored.source_url, calls[0], "source_url records what was actually fetched");
+});
+
+test("POST /api/nfce rejects an unsupported UF given as a chave, without fetching", async (t) => {
+  const db = freshDb(t);
+  const calls = stubFetch(t, NOT_A_NOTE);
+  const app = createApp(db);
+
+  const res = await postJson(app, { chave: "35" + SYNTHETIC_CHAVE.slice(2) });
+  assert.equal(res.status, 422);
+  assert.deepEqual(calls, [], "routing happens before the network");
+  assert.deepEqual(counts(db), { notes: 0, items: 0 });
+});
+
+test("POST /api/nfce rejects malformed chaves", async (t) => {
+  const db = freshDb(t);
+  const app = createApp(db);
+
+  assert.equal((await postJson(app, { chave: "4126 0906" })).status, 400, "too short");
+  assert.equal((await postJson(app, { chave: `${SYNTHETIC_CHAVE}7` })).status, 400, "too long");
+  // A URL in the chave field must not be salvaged by stripping its non-digits.
+  assert.equal(
+    (await postJson(app, { chave: qrUrl(SYNTHETIC_CHAVE) })).status,
+    400,
+    "a URL is not a chave",
+  );
+  assert.equal((await postJson(app, { chave: "" })).status, 400, "empty");
+  assert.deepEqual(counts(db), { notes: 0, items: 0 });
+});
+
+test("a chave and its QR URL land on the same stored note", { skip: skipWithoutFixture }, async (t) => {
+  const db = freshDb(t);
+  stubFetch(t, html());
+  const app = createApp(db);
+  const n = note();
+
+  assert.equal((await postJson(app, { url: qrUrl(n.chave) })).status, 200);
+  assert.equal((await postJson(app, { chave: n.chave })).status, 200);
+  assert.deepEqual(counts(db), { notes: 1, items: n.items.length }, "still one note");
+});

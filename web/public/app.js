@@ -273,10 +273,34 @@ function setStatus(message, kind) {
   statusEl.className = `status${kind ? ` ${kind}` : ""}`;
 }
 
+/**
+ * The box takes either the QR URL or the chave on its own. A chave copied from
+ * the Nota Paraná account arrives in groups of four, so digits are all we keep.
+ */
+function ingestBody(raw) {
+  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(raw)) return { url: raw };
+
+  const digits = raw.replace(/\D/g, "");
+  if (digits.length !== 44) {
+    throw new Error(
+      `esperava a URL do QR code ou uma chave de 44 dígitos (recebi ${digits.length}).`,
+    );
+  }
+  return { chave: digits };
+}
+
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
-  const url = input.value.trim();
-  if (!url) return;
+  const raw = input.value.trim();
+  if (!raw) return;
+
+  let body;
+  try {
+    body = ingestBody(raw);
+  } catch (err) {
+    setStatus(err.message, "err");
+    return;
+  }
 
   scanButton.disabled = true;
   setStatus("Buscando no portal da fazenda…", "busy");
@@ -285,7 +309,7 @@ form.addEventListener("submit", async (event) => {
     const note = await api("/nfce", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ url }),
+      body: JSON.stringify(body),
     });
     const total = brl(note.total_value_c) ?? "";
     setStatus(

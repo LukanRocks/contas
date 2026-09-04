@@ -58,9 +58,25 @@ curl -X POST http://localhost:3000/api/nfce \
   -d '{"url":"https://www.fazenda.pr.gov.br/nfce/qrcode?p=<44-digit-chave>%7C3%7C1"}'
 ```
 
-Extracts the chave from the URL's `p` parameter, routes by UF, fetches the
-scanned URL **verbatim**, parses, cross-checks against the chave, upserts in a
-transaction, logs the parsed object, and returns it.
+Or, when you only have the key — the form you can copy out of the Nota Paraná
+account, whose own note pages sit behind a login the server cannot follow:
+
+```bash
+curl -X POST http://localhost:3000/api/nfce \
+  -H 'content-type: application/json' \
+  -d '{"chave":"4126 0906 0572 2304 8530 6501 6000 1213 4511 6191 2283"}'
+```
+
+Extracts the chave (from the URL's `p` parameter, or as given — spaces and dots
+are ignored), routes by UF, fetches, parses, cross-checks against the chave,
+upserts in a transaction, logs the parsed object, and returns it.
+
+A scanned URL is fetched **verbatim**; it carries the right domain and any
+signed parameters. A bare chave has none, so the public consulta URL for its
+state is built instead — for PR, `?p=<chave>|3|1` (versão 3, ambiente
+produção). That suffix carries no signed or note-specific data, but it is
+required: the chave alone returns an empty page. Either way `source_url`
+records what was actually fetched.
 
 | Status | Meaning                                                                    |
 | ------ | -------------------------------------------------------------------------- |

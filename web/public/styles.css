@@ -55,6 +55,14 @@ main, .topbar { max-width: 960px; margin-inline: auto; }
 }
 .panel h2 { margin: 0 0 0.2rem; font-size: 1.02rem; }
 .hint { margin: 0 0 0.85rem; color: var(--muted); font-size: 0.9rem; }
+.hint code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85em;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.05rem 0.3rem;
+}
 
 /* --- scan form --- */
 .scan form { display: flex; gap: 0.5rem; flex-wrap: wrap; }

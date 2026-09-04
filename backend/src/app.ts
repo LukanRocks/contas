@@ -2,18 +2,43 @@ import { serveStatic } from "@hono/node-server/serve-static";
 import { Hono } from "hono";
 import { z } from "zod";
 import { fileURLToPath } from "node:url";
-import { extractChaveFromUrl, InvalidChaveError, ufFromChave } from "./chave.ts";
+import {
+  extractChaveFromUrl,
+  InvalidChaveError,
+  normalizeChave,
+  ufFromChave,
+} from "./chave.ts";
 import { crossCheckAgainstChave } from "./crosscheck.ts";
 import { countNotes, getNote, getNoteHtml, listNotes, upsertNote, type DB } from "./db.ts";
 import { fetchNoteHtml, FetchError } from "./fetcher.ts";
-import { isSupportedUf, parse, ParseError, UnsupportedUfError } from "./parsers/index.ts";
+import {
+  consultaUrl,
+  isSupportedUf,
+  parse,
+  ParseError,
+  UnsupportedUfError,
+} from "./parsers/index.ts";
 
-const IngestBody = z.object({
-  url: z
-    .string()
-    .url()
-    .refine((u) => /^https?:$/.test(new URL(u).protocol), "url must be http(s)"),
-});
+/**
+ * A note is identified either by the URL its QR code encodes, or by the chave
+ * on its own -- the form you can copy out of the Nota Paraná account, where
+ * the note's own page is behind a login the server cannot follow.
+ *
+ * The chave is accepted as printed, in groups of four.
+ */
+const IngestBody = z.union([
+  z.object({
+    url: z
+      .string()
+      .url()
+      .refine((u) => /^https?:$/.test(new URL(u).protocol), "url must be http(s)"),
+  }),
+  z.object({
+    // Digits and the separators a receipt prints, so a pasted URL cannot be
+    // mistaken for a key by stripping its non-digits.
+    chave: z.string().regex(/^[\d\s.-]+$/, "chave must be digits, optionally grouped"),
+  }),
+]);
 
 const ChaveParam = z.string().regex(/^\d{44}$/, "chave must be 44 digits");
 
@@ -66,13 +91,17 @@ export function createApp(db: DB) {
   });
 
   api.post("/nfce", async (c) => {
-    // 1. Validate the body and pull the chave out of the QR URL.
-    let url: string;
+    // 1. Validate the body and resolve it to a chave.
     let chave: string;
+    let scannedUrl: string | null = null;
     try {
       const body = IngestBody.parse(await c.req.json());
-      url = body.url;
-      chave = extractChaveFromUrl(url);
+      if ("url" in body) {
+        scannedUrl = body.url;
+        chave = extractChaveFromUrl(body.url);
+      } else {
+        chave = normalizeChave(body.chave);
+      }
     } catch (err) {
       if (err instanceof InvalidChaveError) {
         return c.json({ error: "invalid_chave", message: err.message }, 400);
@@ -80,7 +109,10 @@ export function createApp(db: DB) {
       if (err instanceof z.ZodError) {
         return c.json({ error: "invalid_body", issues: err.issues }, 400);
       }
-      return c.json({ error: "invalid_body", message: "expected JSON body { url }" }, 400);
+      return c.json(
+        { error: "invalid_body", message: "expected JSON body { url } or { chave }" },
+        400,
+      );
     }
 
     // 2. Route by UF before touching the network -- unsupported states store nothing.
@@ -90,11 +122,15 @@ export function createApp(db: DB) {
       return c.json({ error: "unsupported_uf", uf, message: err.message }, 422);
     }
 
-    // 3-4. Fetch the scanned URL verbatim, then parse.
+    // 3-4. A scanned URL is fetched verbatim -- it carries the right domain and
+    // any signed parameters. A bare chave has no URL, so build the public
+    // consulta one for its state.
+    const targetUrl = scannedUrl ?? consultaUrl(uf, chave);
+
     let html: string;
     let fetched_at: string;
     try {
-      ({ html, fetched_at } = await fetchNoteHtml(url));
+      ({ html, fetched_at } = await fetchNoteHtml(targetUrl));
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       console.error(`[nfce] fetch failed for ${chave}: ${message}`);
@@ -110,9 +146,10 @@ export function createApp(db: DB) {
       return c.json({ error: "parse_failed", message }, 502);
     }
 
-    // The page's own chave wins, but disagreeing with the QR is worth flagging.
+    // The page's own chave wins, but disagreeing with what we asked for is
+    // worth flagging -- it would mean the portal served a different note.
     if (note.chave !== chave) {
-      console.warn(`[nfce] chave mismatch: URL says ${chave}, page says ${note.chave}`);
+      console.warn(`[nfce] chave mismatch: requested ${chave}, page says ${note.chave}`);
     }
 
     // 5. Cross-check the scrape against the chave's encoded fields.
@@ -122,7 +159,7 @@ export function createApp(db: DB) {
 
     // 6. Idempotent write.
     try {
-      upsertNote(db, { ...note, source_url: url, raw_html: html, fetched_at });
+      upsertNote(db, { ...note, source_url: targetUrl, raw_html: html, fetched_at });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       console.error(`[nfce] store failed for ${note.chave}: ${message}`);
