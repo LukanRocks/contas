@@ -89,15 +89,6 @@ sudo chown -R 1000:1000 /path/to/your/data/dir
 The server reports the path and the uid when it cannot open the database, so a
 mismatch is obvious from the logs.
 
-**First pull:** GHCR packages start private. After the first successful build,
-either make the package public (Packages → nf-price-tracker → Package settings →
-Change visibility) or log the server in with a personal access token that has
-`read:packages`:
-
-```bash
-echo "$GITHUB_TOKEN" | docker login ghcr.io -u LukanRocks --password-stdin
-```
-
 ## Adding a package
 
 Create a folder here with a `package.json` named `@nf-price-tracker/<name>` —
