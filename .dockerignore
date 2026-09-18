@@ -16,6 +16,7 @@ data
 nfce-fixture.html
 
 # Not needed at runtime
+app
 *.md
 .DS_Store
 Dockerfile

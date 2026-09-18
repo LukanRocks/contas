@@ -1,0 +1,56 @@
+{
+  "expo": {
+    "name": "nf-price-tracker",
+    "slug": "nf-price-tracker",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "nf-price-tracker",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "bundleIdentifier": "com.lukanrocks.nfpricetracker",
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSAllowsLocalNetworking": true
+        },
+        "NSLocalNetworkUsageDescription": "The app needs to reach your nf-price-tracker server on your local network."
+      }
+    },
+    "android": {
+      "package": "com.lukanrocks.nfpricetracker",
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "The app uses the camera to read the QR code on your fiscal notes.",
+          "recordAudioAndroid": false
+        }
+      ]
+    ],
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "locales": {
+      "en": "./locales/en.json",
+      "pt": "./locales/pt.json"
+    }
+  }
+}

@@ -6,9 +6,10 @@ A pnpm workspace. Each app is its own top-level folder.
 | --------------------------- | ---------- | ---------------------------------------------------------------- |
 | `@nf-price-tracker/backend` | `backend/` | NFC-e ingestion API — scrapes Brazilian fiscal notes into SQLite |
 | `@nf-price-tracker/web`     | `web/`     | Plain HTML/CSS front end, served by the backend at `/`           |
+| `@nf-price-tracker/app`     | `app/`     | React Native (Expo) mobile client for iOS and Android            |
 
 Long-term goal: a grocery price database built from scanned NFC-e receipts.
-Today the workspace holds the ingestion core only.
+Today that is the ingestion core, plus the two front ends that read it.
 
 ## Getting started
 
@@ -21,6 +22,13 @@ pnpm typecheck   # every package
 
 Then open <http://localhost:3000>. The backend serves the front end, so there
 is a single origin and no CORS to configure.
+
+The mobile app is not part of the workspace and is not covered by those
+commands — it installs and runs from its own folder:
+
+```bash
+cd app && pnpm install && pnpm start
+```
 
 
 No real fiscal note is committed to this repo — a scanned NFC-e carries the
@@ -104,6 +112,10 @@ shared compiler options so every package typechecks the same way:
 { "extends": "../tsconfig.base.json" }
 ```
 
+`app/` is the deliberate exception: it is excluded from the workspace and keeps
+its own lockfile, so the React Native toolchain stays out of the backend image
+and out of every backend install. See [app/README.md](app/README.md#notes).
+
 To depend on another workspace package, use the workspace protocol:
 
 ```json
@@ -120,4 +132,5 @@ Dockerfile            multi-stage image; no compile step, just dependencies
 compose.yaml          local-server deployment
 backend/              @nf-price-tracker/backend  (see backend/README.md)
 web/                  @nf-price-tracker/web      (see web/README.md)
+app/                  @nf-price-tracker/app      (see app/README.md)
 ```

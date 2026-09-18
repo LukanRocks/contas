@@ -1,0 +1,8 @@
+# This app deliberately sits outside the repo's workspace (see the "!app" line
+# in ../pnpm-workspace.yaml): the backend image installs the whole workspace
+# with --prod, and the React Native tree has no business in a server image.
+#
+# This file exists to stop pnpm's search for a workspace root here, so
+# `pnpm install` in this folder writes app/pnpm-lock.yaml instead of touching
+# the root one.
+packages: []
