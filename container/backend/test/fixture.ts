@@ -10,12 +10,12 @@ import { fileURLToPath } from "node:url";
  * Relative paths resolve from the workspace root, so `data/nfce-fixture.html`
  * lands in the gitignored `data/` directory.
  */
-const REPO_ROOT = fileURLToPath(new URL("../../", import.meta.url));
+const WORKSPACE_ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const configured = process.env["NFCE_FIXTURE"]?.trim();
 
 function load(): string | null {
   if (!configured) return null;
-  const path = isAbsolute(configured) ? configured : resolve(REPO_ROOT, configured);
+  const path = isAbsolute(configured) ? configured : resolve(WORKSPACE_ROOT, configured);
   if (!existsSync(path)) {
     // Misconfiguration is louder than a silent skip: the user asked for these.
     throw new Error(

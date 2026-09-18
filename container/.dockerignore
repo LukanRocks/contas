@@ -1,7 +1,5 @@
 # Build context hygiene: keep secrets, local state and host artefacts out of
 # the image (and out of the build cache).
-.git
-.github
 node_modules
 **/node_modules
 
@@ -16,7 +14,6 @@ data
 nfce-fixture.html
 
 # Not needed at runtime
-app
 *.md
 .DS_Store
 Dockerfile

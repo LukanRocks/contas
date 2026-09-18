@@ -1,7 +1,8 @@
 /**
  * The fields this app reads from the backend's `NoteSummary`
- * (backend/src/db.ts). Hand-written rather than imported: the app is outside
- * the pnpm workspace, so it cannot depend on the backend package.
+ * (container/backend/src/db.ts). Hand-written rather than imported: the app is
+ * not part of the server's pnpm workspace, so it cannot depend on the backend
+ * package.
  */
 export type NoteSummary = {
   chave: string;
