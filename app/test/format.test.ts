@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { brl, chaveShort, dateTime, plural } from "../src/format.ts";
+import { brl, chaveShort, dateTime, hostLabel, plural } from "../src/format.ts";
 
 test("brl formats integer cents the way the receipt prints them", () => {
   assert.equal(brl(84457), "R$ 844,57");
@@ -37,4 +37,9 @@ test("plural picks the pt-BR noun", () => {
   assert.equal(plural(1, "nota", "notas"), "1 nota");
   assert.equal(plural(0, "nota", "notas"), "0 notas");
   assert.equal(plural(12, "item", "itens"), "12 itens");
+});
+
+test("hostLabel drops the scheme and nothing else", () => {
+  assert.equal(hostLabel("http://192.168.1.10:3000"), "192.168.1.10:3000");
+  assert.equal(hostLabel("https://nf.example.com/tracker"), "nf.example.com/tracker");
 });

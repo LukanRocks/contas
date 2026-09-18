@@ -30,3 +30,8 @@ export function chaveShort(chave: string): string {
 export function plural(n: number, one: string, many: string): string {
   return `${n} ${n === 1 ? one : many}`;
 }
+
+/** "http://192.168.1.10:3000" -> "192.168.1.10:3000" — short enough for a header line. */
+export function hostLabel(baseUrl: string): string {
+  return baseUrl.replace(/^https?:\/\//, "");
+}

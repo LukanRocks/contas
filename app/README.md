@@ -37,12 +37,19 @@ database and a server that is not this one are all told apart at setup instead
 of at first use.
 
 **Every launch after** — the address is read back from the device and the app
-opens straight on the notes. **Servidor** in the header returns to onboarding
-when the backend moves.
+opens straight on the notes. From there a tab bar switches between **Início**
+and **Ajustes**.
 
-**Home** — every scanned note from `GET /api/nfce`, newest emission first, same
-order as the web list: establishment, emission date, item count, and what was
-paid (`payable_c`, falling back to the items total). Pull to refresh.
+**Início** — every scanned note from `GET /api/nfce`, newest emission first,
+same order as the web list: establishment, emission date, item count, and what
+was paid (`payable_c`, falling back to the items total). Pull to refresh.
+
+**Ajustes › Servidor** — names the server (it is "Servidor" until you do;
+clearing the name goes back to that) and changes the backend when it moves.
+Same form and the same `/api/health` check as onboarding, run only when the
+address actually changes — renaming works with the server down. The saved
+address stays in force until a new one answers, so backing out leaves the app
+as it was.
 
 Scanning a note is still the web front end's job; this app only reads.
 
@@ -50,16 +57,18 @@ Scanning a note is still the web front end's job; this app only reads.
 
 ```
 index.ts            Expo entry point
-App.tsx             which screen to show, and the saved-URL bootstrap
+App.tsx             the saved-URL bootstrap, then onboarding or the tab bar
 app.json            Expo config: icons, bundle identifiers, network policy
 src/
   api.ts            URL normalization, /api/health, /api/nfce
-  storage.ts        the backend URL on the device
+  backend.ts        the saved server, as a context for navigator screens
+  navigation.ts     route names and params for the tabs and the Ajustes stack
+  storage.ts        the backend URL and its name on the device
   format.ts         BRL, dates, chave -- pt-BR, no Intl (see below)
   theme.ts          light/dark palette, mirroring web/public/styles.css
   types.ts          the backend fields this app reads
-  screens/          OnboardingScreen, HomeScreen
-  components/       NoteRow
+  screens/          OnboardingScreen, HomeScreen, SettingsScreen, ServerScreen
+  components/       NoteRow, ServerForm, ScreenHeader
 test/               format and URL normalization, under node --test
 ```
 

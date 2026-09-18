@@ -8,18 +8,16 @@ import {
   Text,
   View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
+import { useNavigation } from "@react-navigation/native";
 import { ApiError, listNotes } from "../api";
+import { useBackend } from "../backend";
 import { NoteRow } from "../components/NoteRow";
-import { plural } from "../format";
+import { ScreenHeader } from "../components/ScreenHeader";
+import { hostLabel, plural } from "../format";
+import type { TabParamList } from "../navigation";
 import { useTheme } from "../theme";
 import type { NoteSummary } from "../types";
-
-type Props = {
-  baseUrl: string;
-  /** Sends the user back to onboarding — the saved server may have moved. */
-  onChangeServer: () => void;
-};
 
 type State =
   | { status: "loading" }
@@ -27,9 +25,10 @@ type State =
   | { status: "ready"; notes: NoteSummary[]; total: number };
 
 /** Every note the backend has, newest emission first — the same order as the web list. */
-export function HomeScreen({ baseUrl, onChangeServer }: Props) {
+export function HomeScreen() {
   const theme = useTheme();
-  const insets = useSafeAreaInsets();
+  const { baseUrl } = useBackend();
+  const navigation = useNavigation<BottomTabNavigationProp<TabParamList, "Home">>();
   const [state, setState] = useState<State>({ status: "loading" });
   const [refreshing, setRefreshing] = useState(false);
 
@@ -59,25 +58,17 @@ export function HomeScreen({ baseUrl, onChangeServer }: Props) {
 
   const count = state.status === "ready" ? plural(state.total, "nota", "notas") : null;
 
+  // `initial: false` keeps Ajustes underneath, so back lands there rather than
+  // on an empty stack when the Settings tab has not been opened yet.
+  const changeServer = () =>
+    navigation.navigate("Settings", { screen: "Server", initial: false });
+
   return (
-    <View style={[styles.flex, { backgroundColor: theme.bg, paddingTop: insets.top }]}>
-      <View style={[styles.header, { borderColor: theme.border }]}>
-        <View style={styles.headerText}>
-          <Text style={[styles.title, { color: theme.text }]}>Notas escaneadas</Text>
-          <Text style={[styles.server, { color: theme.muted }]} numberOfLines={1}>
-            {count ? `${count} · ` : ""}
-            {baseUrl.replace(/^https?:\/\//, "")}
-          </Text>
-        </View>
-        <Pressable
-          onPress={onChangeServer}
-          accessibilityRole="button"
-          hitSlop={8}
-          style={({ pressed }) => [styles.link, { opacity: pressed ? 0.6 : 1 }]}
-        >
-          <Text style={[styles.linkText, { color: theme.accent }]}>Servidor</Text>
-        </Pressable>
-      </View>
+    <View style={[styles.flex, { backgroundColor: theme.bg }]}>
+      <ScreenHeader
+        title="Notas escaneadas"
+        subtitle={`${count ? `${count} · ` : ""}${hostLabel(baseUrl)}`}
+      />
 
       {state.status === "loading" ? (
         <View style={styles.center}>
@@ -99,7 +90,7 @@ export function HomeScreen({ baseUrl, onChangeServer }: Props) {
           >
             <Text style={[styles.buttonText, { color: theme.accentText }]}>Tentar de novo</Text>
           </Pressable>
-          <Pressable onPress={onChangeServer} accessibilityRole="button" hitSlop={8}>
+          <Pressable onPress={changeServer} accessibilityRole="button" hitSlop={8}>
             <Text style={[styles.linkText, { color: theme.accent }]}>Trocar de servidor</Text>
           </Pressable>
         </View>
@@ -108,11 +99,7 @@ export function HomeScreen({ baseUrl, onChangeServer }: Props) {
           data={state.notes}
           keyExtractor={(note) => note.chave}
           renderItem={({ item }) => <NoteRow note={item} />}
-          contentContainerStyle={[
-            styles.list,
-            { paddingBottom: insets.bottom + 24 },
-            state.notes.length === 0 && styles.flex,
-          ]}
+          contentContainerStyle={[styles.list, state.notes.length === 0 && styles.flex]}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -137,21 +124,8 @@ export function HomeScreen({ baseUrl, onChangeServer }: Props) {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  headerText: { flex: 1, gap: 2 },
-  title: { fontSize: 20, fontWeight: "700", letterSpacing: -0.3 },
-  server: { fontSize: 12.5 },
-  link: { paddingVertical: 4 },
   linkText: { fontSize: 14, fontWeight: "600" },
-  list: { padding: 16, gap: 10 },
+  list: { padding: 16, paddingBottom: 24, gap: 10 },
   center: { flex: 1, alignItems: "center", justifyContent: "center", gap: 12, padding: 24 },
   centerText: { fontSize: 14, lineHeight: 20, textAlign: "center" },
   emptyTitle: { fontSize: 16, fontWeight: "600" },
