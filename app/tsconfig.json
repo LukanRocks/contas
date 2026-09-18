@@ -1,0 +1,16 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+
+    // The tests import source files by their real ".ts" path, the way Node
+    // resolves them when it strips the types at load time.
+    "allowImportingTsExtensions": true,
+
+    // Expo's base config leaves this open, which drops Node's globals under
+    // "bundler" resolution and leaves `node:test` unresolvable in test/.
+    "types": ["node", "react"]
+  }
+}
