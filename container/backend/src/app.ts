@@ -123,8 +123,8 @@ export function createApp(db: DB) {
     }
 
     // 3-4. A scanned URL is fetched verbatim -- it carries the right domain and
-    // any signed parameters. A bare chave has no URL, so build the public
-    // consulta one for its state.
+    // any signed parameters. A bare chave has no URL, so build the
+    // public lookup one for its state.
     const targetUrl = scannedUrl ?? consultaUrl(uf, chave);
 
     let html: string;

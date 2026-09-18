@@ -17,8 +17,9 @@ import { I18nContext, useStrings } from "./src/i18n";
 import { resolveLanguage } from "./src/i18n/language";
 import type { LanguageSetting } from "./src/i18n/language";
 import { BUNDLES } from "./src/i18n/strings";
-import type { SettingsStackParamList, TabParamList } from "./src/navigation";
+import type { HomeStackParamList, SettingsStackParamList, TabParamList } from "./src/navigation";
 import { HomeScreen } from "./src/screens/HomeScreen";
+import { NoteScreen } from "./src/screens/NoteScreen";
 import { OnboardingScreen } from "./src/screens/OnboardingScreen";
 import { ScanScreen } from "./src/screens/ScanScreen";
 import { LanguageScreen } from "./src/screens/LanguageScreen";
@@ -51,6 +52,7 @@ type Boot =
   | { status: "ready"; server: Server };
 
 const Tab = createBottomTabNavigator<TabParamList>();
+const HomeStack = createNativeStackNavigator<HomeStackParamList>();
 const SettingsStack = createNativeStackNavigator<SettingsStackParamList>();
 
 function App() {
@@ -178,7 +180,7 @@ function Tabs() {
       />
       <Tab.Screen
         name="Home"
-        component={HomeScreen}
+        component={HomeNavigator}
         options={{
           title: t.tabs.home,
           tabBarIcon: ({ focused, color, size }) => (
@@ -197,6 +199,26 @@ function Tabs() {
         }}
       />
     </Tab.Navigator>
+  );
+}
+
+/** The list, and each note opened from it as its own screen, with a back button and swipe. */
+function HomeNavigator() {
+  const t = useStrings();
+
+  return (
+    <HomeStack.Navigator>
+      <HomeStack.Screen
+        name="NoteList"
+        component={HomeScreen}
+        options={{ title: t.home.title, headerShown: false }}
+      />
+      <HomeStack.Screen
+        name="Note"
+        component={NoteScreen}
+        options={{ title: t.note.screenTitle }}
+      />
+    </HomeStack.Navigator>
   );
 }
 

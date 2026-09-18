@@ -69,7 +69,7 @@ line in [`compose.yaml`](compose.yaml) with `build: .`.
 | Setting           | Notes                                                       |
 | ----------------- | ----------------------------------------------------------- |
 | `PORT`            | Host port to publish; defaults to `3000`                     |
-| `NFCE_SAMPLE_URL` | Optional; reveals the "Exemplo" button. Put it in `.env`     |
+| `NFCE_SAMPLE_URL` | Optional; reveals the example button. Put it in `.env`       |
 | `./data`          | Bind mount holding the database — back this up               |
 
 `/api/health` backs both the Dockerfile `HEALTHCHECK` and the compose

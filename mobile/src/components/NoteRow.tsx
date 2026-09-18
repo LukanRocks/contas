@@ -1,22 +1,31 @@
-import { StyleSheet, Text, View } from "react-native";
+import ChevronRight from "lucide-react-native/icons/chevron-right";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { brl, dateTime, plural } from "../format";
 import { useStrings } from "../i18n";
 import { useTheme } from "../theme";
 import type { NoteSummary } from "../types";
 
 /**
- * One scanned note in the list. The parser leaves any field it could not read
- * as null, so every cell has to survive being empty -- an em dash stands in,
- * the same placeholder the web list uses.
+ * One scanned note in the list; pressing it opens the whole note. The parser
+ * leaves any field it could not read as null, so every cell has to survive
+ * being empty -- an em dash stands in, the same placeholder the web list uses.
  */
-export function NoteRow({ note }: { note: NoteSummary }) {
+export function NoteRow({ note, onPress }: { note: NoteSummary; onPress: () => void }) {
   const theme = useTheme();
   const t = useStrings();
   // What the shopper actually paid, when the note says so; the items total otherwise.
   const total = brl(note.payable_c ?? note.total_value_c) ?? "—";
 
   return (
-    <View style={[styles.row, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityHint={t.home.openHint}
+      style={({ pressed }) => [
+        styles.row,
+        { backgroundColor: theme.surface, borderColor: theme.border, opacity: pressed ? 0.6 : 1 },
+      ]}
+    >
       <View style={styles.main}>
         <Text style={[styles.store, { color: theme.text }]} numberOfLines={2}>
           {note.emit_name ?? t.home.unknownStore}
@@ -27,7 +36,8 @@ export function NoteRow({ note }: { note: NoteSummary }) {
         </Text>
       </View>
       <Text style={[styles.total, { color: theme.text }]}>{total}</Text>
-    </View>
+      <ChevronRight size={18} color={theme.muted} />
+    </Pressable>
   );
 }
 
@@ -38,7 +48,8 @@ const styles = StyleSheet.create({
     gap: 12,
     borderWidth: 1,
     borderRadius: 10,
-    paddingHorizontal: 14,
+    paddingLeft: 14,
+    paddingRight: 10,
     paddingVertical: 12,
   },
   main: { flex: 1, gap: 2 },

@@ -1,6 +1,6 @@
 import type { Strings } from "./i18n/strings";
 import type { IngestPayload } from "./scan";
-import type { NoteListResponse, ParsedNote } from "./types";
+import type { NoteDetail, NoteListResponse, ParsedNote } from "./types";
 
 /** Long enough for a sleepy homelab box, short enough to not feel hung. */
 const TIMEOUT_MS = 10_000;
@@ -107,6 +107,31 @@ export async function listNotes(baseUrl: string, limit = 200): Promise<NoteListR
     throw new ApiError((t) => t.errors.unexpectedList);
   }
   return body as NoteListResponse;
+}
+
+/** One stored note with all its lines, for the detail screen. */
+export async function getNote(baseUrl: string, chave: string): Promise<NoteDetail> {
+  // A 404 still answers in JSON, and says which kind of missing it is.
+  const body = await getJson(`${baseUrl}/api/nfce/${encodeURIComponent(chave)}`, {
+    expectedStatuses: [200, 404],
+  });
+
+  if (isRecord(body) && body["error"] === "not_found") {
+    throw new ApiError((t) => t.errors.noteNotFound);
+  }
+  if (!isRecord(body) || typeof body["chave"] !== "string" || !Array.isArray(body["items"])) {
+    throw new ApiError((t) => t.errors.noteMissing);
+  }
+  return body as unknown as NoteDetail;
+}
+
+/**
+ * The page the note was read from, as captured from the state portal. The
+ * server sends it with `content-security-policy: sandbox`, so a browser shows
+ * it with scripts and forms off, in an origin of its own.
+ */
+export function noteHtmlUrl(baseUrl: string, chave: string): string {
+  return `${baseUrl}/api/nfce/${encodeURIComponent(chave)}/html`;
 }
 
 /**

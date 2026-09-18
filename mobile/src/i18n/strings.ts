@@ -33,6 +33,8 @@ export type Strings = {
     items: string;
     note: string;
     notes: string;
+    line: string;
+    lines: string;
   };
 
   onboarding: {
@@ -81,6 +83,39 @@ export type Strings = {
     emptyBody: string;
     unknownStore: string;
     noEmissionDate: string;
+    openHint: string;
+  };
+
+  /** The detail screen: the web's detail page, section for section. */
+  note: {
+    screenTitle: string;
+    number: (numero: string) => string;
+    series: (serie: string) => string;
+    cnpj: string;
+    address: string;
+    uf: string;
+    chave: string;
+    qrUrl: string;
+    totals: string;
+    totalItems: string;
+    totalValue: string;
+    discount: string;
+    payable: string;
+    paymentMethod: string;
+    paid: string;
+    taxes: string;
+    consumer: string;
+    consumerCpf: string;
+    consumerName: string;
+    items: string;
+    storeCode: (code: string) => string;
+    collection: string;
+    fetchedAt: string;
+    createdAt: string;
+    rawHtml: string;
+    original: string;
+    originalHint: string;
+    openOriginal: string;
   };
 
   settings: {
@@ -115,6 +150,7 @@ export type Strings = {
     unreachable: (detail: string) => string;
     serverSaid: (status: number, detail: string | null) => string;
     noteMissing: string;
+    noteNotFound: string;
     notANote: string;
     unsupportedUf: (uf: string) => string;
     fetchFailed: string;
@@ -130,7 +166,14 @@ export const pt: Strings = {
 
   tabs: { scan: "Escanear", home: "Início", settings: "Ajustes" },
 
-  units: { item: "item", items: "itens", note: "nota", notes: "notas" },
+  units: {
+    item: "item",
+    items: "itens",
+    note: "nota",
+    notes: "notas",
+    line: "linha",
+    lines: "linhas",
+  },
 
   onboarding: {
     subtitle: "Suas notas ficam no seu servidor. Informe o endereço dele para começar.",
@@ -181,6 +224,39 @@ export const pt: Strings = {
     emptyBody: "Escaneie o QR code de uma NFC-e na aba Escanear e ela aparece aqui.",
     unknownStore: "Estabelecimento não identificado",
     noEmissionDate: "Sem data de emissão",
+    openHint: "Abre a nota completa",
+  },
+
+  note: {
+    screenTitle: "Nota",
+    number: (numero) => `Nº ${numero}`,
+    series: (serie) => `Série ${serie}`,
+    cnpj: "CNPJ",
+    address: "Endereço",
+    uf: "UF",
+    chave: "Chave de acesso",
+    qrUrl: "URL do QR",
+    totals: "Totais",
+    totalItems: "Qtd. total de itens",
+    totalValue: "Valor total",
+    discount: "Descontos",
+    payable: "Valor a pagar",
+    paymentMethod: "Forma de pagamento",
+    paid: "Valor pago",
+    taxes: "Tributos totais",
+    consumer: "Consumidor",
+    consumerCpf: "CPF",
+    consumerName: "Nome",
+    items: "Itens",
+    storeCode: (code) => `Cód. ${code}`,
+    collection: "Coleta",
+    fetchedAt: "Coletada em",
+    createdAt: "Primeiro registro",
+    rawHtml: "HTML bruto",
+    original: "Nota original",
+    originalHint:
+      "A página capturada do portal da fazenda — os dados acima foram lidos dela. Abre no navegador, isolada: sem scripts nem formulários.",
+    openOriginal: "Abrir no navegador",
   },
 
   settings: {
@@ -217,6 +293,7 @@ export const pt: Strings = {
     serverSaid: (status, detail) =>
       `O servidor respondeu ${status}${detail ? ` — ${detail}` : "."}`,
     noteMissing: "O servidor respondeu, mas não devolveu a nota.",
+    noteNotFound: "Essa nota não está no servidor.",
     notANote: "Esse QR code não é de uma nota fiscal.",
     unsupportedUf: (uf) =>
       `O servidor ainda não lê notas desse estado (UF ${uf}) — por enquanto só Paraná.`,
@@ -242,7 +319,14 @@ export const en: Strings = {
 
   tabs: { scan: "Scan", home: "Notes", settings: "Settings" },
 
-  units: { item: "item", items: "items", note: "note", notes: "notes" },
+  units: {
+    item: "item",
+    items: "items",
+    note: "note",
+    notes: "notes",
+    line: "line",
+    lines: "lines",
+  },
 
   onboarding: {
     subtitle: "Your notes live on your own server. Enter its address to get started.",
@@ -292,6 +376,39 @@ export const en: Strings = {
     emptyBody: "Scan a receipt's QR code on the Scan tab and it shows up here.",
     unknownStore: "Store not identified",
     noEmissionDate: "No issue date",
+    openHint: "Opens the whole note",
+  },
+
+  note: {
+    screenTitle: "Note",
+    number: (numero) => `No. ${numero}`,
+    series: (serie) => `Series ${serie}`,
+    cnpj: "CNPJ",
+    address: "Address",
+    uf: "State (UF)",
+    chave: "Access key",
+    qrUrl: "QR code URL",
+    totals: "Totals",
+    totalItems: "Total items",
+    totalValue: "Total value",
+    discount: "Discounts",
+    payable: "Amount due",
+    paymentMethod: "Payment method",
+    paid: "Amount paid",
+    taxes: "Total taxes",
+    consumer: "Consumer",
+    consumerCpf: "CPF",
+    consumerName: "Name",
+    items: "Items",
+    storeCode: (code) => `Code ${code}`,
+    collection: "Retrieval",
+    fetchedAt: "Fetched",
+    createdAt: "First stored",
+    rawHtml: "Raw HTML",
+    original: "Original note",
+    originalHint:
+      "The page captured from the state tax portal — the data above was read from it. It opens in the browser, sandboxed: no scripts, no forms.",
+    openOriginal: "Open in browser",
   },
 
   settings: {
@@ -326,6 +443,7 @@ export const en: Strings = {
       `Could not reach the server. Check the address, and that this device is on the same network (${detail}).`,
     serverSaid: (status, detail) => `The server answered ${status}${detail ? ` — ${detail}` : "."}`,
     noteMissing: "The server answered, but did not return the note.",
+    noteNotFound: "That note is not on this server.",
     notANote: "That QR code is not a fiscal note.",
     unsupportedUf: (uf) =>
       `The server does not read notes from that state yet (UF ${uf}) — only Paraná for now.`,
