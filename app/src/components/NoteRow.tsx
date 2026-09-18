@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
-import { brl, chaveShort, dateTime, plural } from "../format";
+import { brl, dateTime, plural } from "../format";
 import { useStrings } from "../i18n";
 import { useTheme } from "../theme";
 import type { NoteSummary } from "../types";
@@ -25,9 +25,6 @@ export function NoteRow({ note }: { note: NoteSummary }) {
           {dateTime(note.emitted_at, t) ?? t.home.noEmissionDate} ·{" "}
           {plural(note.item_count, t.units.item, t.units.items)}
         </Text>
-        <Text style={[styles.chave, { color: theme.muted }]} numberOfLines={1}>
-          {chaveShort(note.chave)}
-        </Text>
       </View>
       <Text style={[styles.total, { color: theme.text }]}>{total}</Text>
     </View>
@@ -47,6 +44,5 @@ const styles = StyleSheet.create({
   main: { flex: 1, gap: 2 },
   store: { fontSize: 15.5, fontWeight: "600" },
   meta: { fontSize: 13 },
-  chave: { fontSize: 11.5, fontVariant: ["tabular-nums"] },
   total: { fontSize: 16, fontWeight: "700", fontVariant: ["tabular-nums"] },
 });

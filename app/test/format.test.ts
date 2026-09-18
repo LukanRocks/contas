@@ -1,8 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { brl, chaveShort, dateTime, hostLabel, plural } from "../src/format.ts";
+import { brl, dateTime, hostLabel, plural } from "../src/format.ts";
 import { en, pt } from "../src/i18n/strings.ts";
-import { CHAVE } from "./fixture.ts";
 
 test("brl formats integer cents the way the receipt prints them", () => {
   assert.equal(brl(84457), "R$ 844,57");
@@ -35,11 +34,6 @@ test("dateTime names the month in en, so a date is never read as another day", (
 test("dateTime passes through anything it cannot read", () => {
   assert.equal(dateTime("ontem", pt), "ontem");
   assert.equal(dateTime("ontem", en), "ontem");
-});
-
-test("chaveShort keeps both ends of the 44 digits", () => {
-  assert.equal(chaveShort(CHAVE), "41260906…000017");
-  assert.equal(chaveShort("123"), "123");
 });
 
 test("plural picks the pt-BR noun", () => {

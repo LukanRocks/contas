@@ -28,11 +28,6 @@ export function dateTime(iso: string | null | undefined, t: Strings): string | n
   return t.formatDateTime({ year, month, day, time: hh && mi ? `${hh}:${mi}` : null });
 }
 
-/** A chave is 44 digits — far too wide for a phone, so show both ends. */
-export function chaveShort(chave: string): string {
-  return chave.length <= 16 ? chave : `${chave.slice(0, 8)}…${chave.slice(-6)}`;
-}
-
 export function plural(n: number, one: string, many: string): string {
   return `${n} ${n === 1 ? one : many}`;
 }
