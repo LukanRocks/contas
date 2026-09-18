@@ -1,7 +1,8 @@
 {
-  "name": "@nf-price-tracker/app",
+  "name": "@nf-price-tracker/mobile",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.25.0",
   "main": "index.ts",
   "engines": {
     "node": ">=20.19"

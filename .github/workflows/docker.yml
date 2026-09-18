@@ -1,11 +1,15 @@
 name: docker
 
 on:
+  # Only the server lives in the image; mobile/ has its own workflow. Tag
+  # pushes ignore path filters, so a v* tag always builds.
   push:
     branches: [main]
     tags: ["v*"]
+    paths: ["container/**", ".github/workflows/docker.yml"]
   pull_request:
     branches: [main]
+    paths: ["container/**", ".github/workflows/docker.yml"]
   workflow_dispatch:
 
 env:
@@ -15,15 +19,21 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: container
     steps:
       - uses: actions/checkout@v7
 
       - uses: pnpm/action-setup@v6
+        with:
+          package_json_file: container/package.json
 
       - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
+          cache-dependency-path: container/pnpm-lock.yaml
 
       - run: pnpm install --frozen-lockfile
 
@@ -70,7 +80,7 @@ jobs:
 
       - uses: docker/build-push-action@v7
         with:
-          context: .
+          context: ./container
           platforms: linux/amd64,linux/arm64
           # Pull requests build to validate the Dockerfile but publish nothing.
           push: ${{ github.event_name != 'pull_request' }}

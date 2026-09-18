@@ -13,7 +13,7 @@ import { extractChaveFromUrl, ufFromChave } from "../src/chave.ts";
 import { fetchNoteHtml } from "../src/fetcher.ts";
 import { isSupportedUf } from "../src/parsers/index.ts";
 
-const REPO_ROOT = fileURLToPath(new URL("../../", import.meta.url));
+const WORKSPACE_ROOT = fileURLToPath(new URL("../../", import.meta.url));
 
 const [url, outArg] = process.argv.slice(2);
 if (!url) {
@@ -29,7 +29,7 @@ if (!isSupportedUf(uf)) {
 }
 
 const target = outArg ?? "data/nfce-fixture.html";
-const out = isAbsolute(target) ? target : resolve(REPO_ROOT, target);
+const out = isAbsolute(target) ? target : resolve(WORKSPACE_ROOT, target);
 
 const { html } = await fetchNoteHtml(url);
 mkdirSync(dirname(out), { recursive: true });

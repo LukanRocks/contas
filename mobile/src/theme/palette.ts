@@ -1,10 +1,10 @@
 import type { ColorScheme } from "./scheme";
 
 /**
- * The palette mirrors web/public/styles.css so both front ends read as the same
- * product. React Native has no custom properties and no media queries, so
- * which of the two applies is decided in `scheme.ts` -- by the device, or by
- * what the user pinned in Settings.
+ * The palette mirrors container/web/public/styles.css so both front ends read
+ * as the same product. React Native has no custom properties and no media
+ * queries, so which of the two applies is decided in `scheme.ts` -- by the
+ * device, or by what the user pinned in Settings.
  */
 export type Theme = {
   dark: boolean;

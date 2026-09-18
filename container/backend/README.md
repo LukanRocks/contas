@@ -25,15 +25,15 @@ cd backend && pnpm dev
 pnpm --filter @nf-price-tracker/backend dev
 ```
 
-`pnpm dev` at the root is a shortcut for the backend. Node 20+ (developed on
-25); TypeScript runs directly via Node's native type stripping, so there is no
-build step.
+`pnpm dev` at the workspace root is a shortcut for the backend. Node 20+
+(developed on 25); TypeScript runs directly via Node's native type stripping,
+so there is no build step.
 
-| Env var         | Default                    | Purpose                         |
-| --------------- | -------------------------- | ------------------------------- |
-| `PORT`          | `3000`                     | HTTP port                       |
-| `DATABASE_PATH` | `<repo root>/data/nf-price-tracker.db` | SQLite file         |
-| `WEB_ROOT`      | `../web/public`            | Front-end files to serve at `/` |
+| Env var         | Default                                     | Purpose                         |
+| --------------- | ------------------------------------------- | ------------------------------- |
+| `PORT`          | `3000`                                      | HTTP port                       |
+| `DATABASE_PATH` | `<workspace root>/data/nf-price-tracker.db` | SQLite file                     |
+| `WEB_ROOT`      | `../web/public`                             | Front-end files to serve at `/` |
 
 The database lives at the workspace root — `data/nf-price-tracker.db`, beside
 the apps rather than inside one of them. The default is resolved from the

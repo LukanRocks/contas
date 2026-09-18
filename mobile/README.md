@@ -1,4 +1,4 @@
-# @nf-price-tracker/app
+# @nf-price-tracker/mobile
 
 The mobile client — one React Native codebase for iOS and Android, built with
 [Expo](https://docs.expo.dev) (SDK 57). It talks to a `@nf-price-tracker/backend`
@@ -7,7 +7,7 @@ you host yourself, over the same `/api` the web front end uses.
 ## Running
 
 ```bash
-cd app
+cd mobile
 pnpm install
 pnpm start        # Metro; press i / a, or scan the QR code with Expo Go
 ```
@@ -91,7 +91,7 @@ src/
   storage.ts        the server, the language and the palette, on the device
   format.ts         BRL, dates, chave -- pt-BR, no Intl (see below)
   theme/
-    palette.ts      the light and dark colours, mirroring web/public/styles.css
+    palette.ts      the light and dark colours, shared with the web front end
     scheme.ts       which of the two to render in
     index.ts        the context the components read it through
   types.ts          the backend fields this app reads
@@ -105,13 +105,12 @@ test/               format, URL normalization, QR classification, language and
 
 ## Notes
 
-- **Outside the pnpm workspace.** The root `pnpm-workspace.yaml` excludes
-  `app`, so dependencies live in `app/pnpm-lock.yaml` and this folder has its
-  own `pnpm-workspace.yaml` to stop pnpm walking up to the root one. The
-  backend's Docker image installs the whole workspace with `--prod`; the React
-  Native toolchain has no business in a server image, nor in every backend
-  `pnpm install`. The cost is that root `pnpm test` and `pnpm typecheck` skip
-  this package — run them here.
+- **Its own project.** This folder sits beside `../container` rather than
+  inside its pnpm workspace, with its own `pnpm-lock.yaml`. The server image
+  installs that whole workspace with `--prod`, and the React Native toolchain
+  has no business in a server image, nor in every backend `pnpm install`. CI
+  runs `pnpm typecheck` and `pnpm test` here through
+  `.github/workflows/mobile.yml`.
 - **`node-linker=hoisted`** in `.npmrc`: Metro resolves modules by walking
   `node_modules` directories, and pnpm's default symlinked layout hides
   transitive React Native packages from it.
