@@ -59,7 +59,7 @@ export function HomeScreen() {
   );
 
   // Reloaded whenever the tab comes into focus, so a note just scanned on
-  // Escanear is already here. Only the first visit to a given server shows the
+  // Scan is already here. Only the first visit to a given server shows the
   // spinner; after that the list reloads underneath what is on screen.
   const loadedFor = useRef<string | null>(null);
   useFocusEffect(
@@ -72,7 +72,7 @@ export function HomeScreen() {
   const count =
     state.status === "ready" ? plural(state.total, t.units.note, t.units.notes) : null;
 
-  // `initial: false` keeps Ajustes underneath, so back lands there rather than
+  // `initial: false` keeps Settings underneath, so back lands there rather than
   // on an empty stack when the Settings tab has not been opened yet.
   const changeServer = () =>
     navigation.navigate("Settings", { screen: "Server", initial: false });

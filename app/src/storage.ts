@@ -12,7 +12,7 @@ const LANGUAGE_KEY = "nf-price-tracker:language";
 
 export type Server = {
   baseUrl: string;
-  /** Set in Ajustes › Servidor; `null` until then, and shown as the default name. */
+  /** Set in Settings › Server; `null` until then, and shown as the default name. */
   name: string | null;
 };
 

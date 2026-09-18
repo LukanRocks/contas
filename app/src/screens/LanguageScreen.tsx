@@ -6,9 +6,9 @@ import type { LanguageSetting } from "../i18n/language";
 import { useTheme } from "../theme";
 
 /**
- * Ajustes › Idioma. "Do aparelho" is the default and stays selectable, so a
- * phone that changes language later carries the app with it -- picking a
- * language explicitly is what pins it.
+ * Settings › Language. Following the device is the default and stays
+ * selectable, so a phone that changes language later carries the app with it
+ * -- picking a language explicitly is what pins it.
  */
 export function LanguageScreen() {
   const theme = useTheme();

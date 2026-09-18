@@ -12,5 +12,5 @@
  */
 export const CHAVE = "41260906057200000000650010000000011000000017";
 
-/** The URL that note's QR code would encode: the chave, then versão and ambiente. */
+/** The URL that note's QR code would encode: the chave, then version and environment. */
 export const QR_URL = `https://www.fazenda.pr.gov.br/nfce/qrcode?p=${CHAVE}%7C3%7C1`;

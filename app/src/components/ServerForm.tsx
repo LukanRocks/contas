@@ -13,7 +13,7 @@ type Props = {
 };
 
 /**
- * The backend address field, shared by onboarding and Ajustes › Servidor, plus
+ * The backend address field, shared by onboarding and Settings › Server, plus
  * a name in the latter. A new address is only handed back — and therefore only
  * stored — once `/api/health` has confirmed something is actually listening
  * there.

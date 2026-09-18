@@ -12,7 +12,7 @@ type Props = {
 /**
  * First-run setup: the app is a client for a self-hosted backend, so it cannot
  * do anything until it is told where that backend is. Changing it later is
- * Ajustes › Servidor, which uses the same form.
+ * Settings › Server, which uses the same form.
  */
 export function OnboardingScreen({ onConnected }: Props) {
   const theme = useTheme();

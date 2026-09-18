@@ -3,7 +3,7 @@ export const LANGUAGES = ["pt", "en"] as const;
 
 export type Language = (typeof LANGUAGES)[number];
 
-/** What the user picked in Ajustes: a language, or "follow the device". */
+/** What the user picked in Settings: a language, or "follow the device". */
 export type LanguageSetting = Language | "system";
 
 export const LANGUAGE_SETTINGS = ["system", ...LANGUAGES] as const;

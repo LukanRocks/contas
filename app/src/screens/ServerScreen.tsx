@@ -6,7 +6,7 @@ import { useStrings } from "../i18n";
 import { useTheme } from "../theme";
 
 /**
- * Ajustes › Servidor: rename the server, or point the app at another one. The
+ * Settings › Server: rename the server, or point the app at another one. The
  * saved address stays in force until a new one has answered `/api/health`, so
  * backing out halfway leaves the app as it was.
  */

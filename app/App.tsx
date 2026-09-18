@@ -37,8 +37,8 @@ import type { Theme } from "./src/theme";
 /**
  * Until a server is known there is nothing to navigate to, so onboarding sits
  * outside the navigator and is shown by a piece of state. Once an address is
- * saved the app is the tab bar: Escanear, Início (the notes) and Ajustes,
- * where the server is changed from then on.
+ * saved the app is the tab bar: Scan, Notes and Settings, where the server
+ * is changed from then on.
  */
 type Boot =
   | { status: "loading" }
@@ -86,7 +86,7 @@ function App() {
     return { t: BUNDLES[language], setting: languageSetting, language, setLanguage };
   }, [languageSetting, locales, setLanguage]);
 
-  // From onboarding and from Ajustes › Servidor. A new address has always
+  // From onboarding and from Settings › Server. A new address has always
   // just answered /api/health; an unchanged one is only being renamed.
   const setServer = useCallback((server: Server) => {
     setBoot({ status: "ready", server });

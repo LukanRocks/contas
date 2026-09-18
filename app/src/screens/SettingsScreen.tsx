@@ -11,7 +11,7 @@ import { useI18n } from "../i18n";
 import type { SettingsStackParamList } from "../navigation";
 import { useTheme } from "../theme";
 
-/** Ajustes: which server the app reads from, and which language it speaks. */
+/** Settings: which server the app reads from, and which language it speaks. */
 export function SettingsScreen() {
   const theme = useTheme();
   const { baseUrl, name } = useBackend();
