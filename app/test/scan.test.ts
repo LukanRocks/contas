@@ -1,9 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { classifyScan } from "../src/scan.ts";
-
-const CHAVE = "41260906057200000000650010000000011000000017";
-const QR_URL = `https://www.fazenda.pr.gov.br/nfce/qrcode?p=${CHAVE}%7C3%7C1`;
+import { CHAVE, QR_URL } from "./fixture.ts";
 
 test("a note's QR URL is sent as a URL, verbatim", () => {
   assert.deepEqual(classifyScan(QR_URL), { url: QR_URL });
