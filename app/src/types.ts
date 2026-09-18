@@ -23,3 +23,17 @@ export type NoteListResponse = {
   offset: number;
   notes: NoteSummary[];
 };
+
+/**
+ * What `POST /api/nfce` gives back: the note as parsed, before the storage-only
+ * columns are added. Only the fields the scan confirmation shows are listed.
+ */
+export type ParsedNote = {
+  chave: string;
+  uf: string;
+  emit_name: string | null;
+  emitted_at: string | null;
+  total_value_c: number | null;
+  payable_c: number | null;
+  items: unknown[];
+};

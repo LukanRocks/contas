@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -9,7 +9,7 @@ import {
   View,
 } from "react-native";
 import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { ApiError, listNotes } from "../api";
 import { useBackend } from "../backend";
 import { NoteRow } from "../components/NoteRow";
@@ -33,28 +33,39 @@ export function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(
-    async (mode: "initial" | "refresh") => {
+    async (mode: "initial" | "refresh" | "quiet") => {
       if (mode === "initial") setState({ status: "loading" });
-      else setRefreshing(true);
+      if (mode === "refresh") setRefreshing(true);
 
       try {
         const data = await listNotes(baseUrl);
         setState({ status: "ready", notes: data.notes, total: data.total });
       } catch (err) {
+        // A quiet reload runs behind the user's back, so a blip should not
+        // replace a good list with an error page. Pulling to refresh asks
+        // again and reports what went wrong.
+        if (mode === "quiet") return;
         setState({
           status: "error",
           message: err instanceof ApiError ? err.message : `Falha inesperada: ${String(err)}`,
         });
       } finally {
-        setRefreshing(false);
+        if (mode === "refresh") setRefreshing(false);
       }
     },
     [baseUrl],
   );
 
-  useEffect(() => {
-    void load("initial");
-  }, [load]);
+  // Reloaded whenever the tab comes into focus, so a note just scanned on
+  // Escanear is already here. Only the first visit to a given server shows the
+  // spinner; after that the list reloads underneath what is on screen.
+  const loadedFor = useRef<string | null>(null);
+  useFocusEffect(
+    useCallback(() => {
+      void load(loadedFor.current === baseUrl ? "quiet" : "initial");
+      loadedFor.current = baseUrl;
+    }, [load, baseUrl]),
+  );
 
   const count = state.status === "ready" ? plural(state.total, "nota", "notas") : null;
 
@@ -111,8 +122,7 @@ export function HomeScreen() {
             <View style={styles.center}>
               <Text style={[styles.emptyTitle, { color: theme.text }]}>Nenhuma nota ainda</Text>
               <Text style={[styles.centerText, { color: theme.muted }]}>
-                Escaneie uma NFC-e pelo front end web do servidor e ela aparece aqui. Puxe para
-                atualizar.
+                Escaneie o QR code de uma NFC-e na aba Escanear e ela aparece aqui.
               </Text>
             </View>
           }

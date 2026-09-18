@@ -1,7 +1,15 @@
-import type { NoteListResponse } from "./types";
+import type { IngestPayload } from "./scan";
+import type { NoteListResponse, ParsedNote } from "./types";
 
 /** Long enough for a sleepy homelab box, short enough to not feel hung. */
 const TIMEOUT_MS = 10_000;
+
+/**
+ * Ingesting is not a local read: the server fetches the note from its state
+ * portal and parses it, and those portals are slow. Failing at ten seconds
+ * would abandon requests that were about to succeed.
+ */
+const INGEST_TIMEOUT_MS = 45_000;
 
 /** Every failure the screens show the user arrives as one of these. */
 export class ApiError extends Error {
@@ -87,26 +95,110 @@ export async function listNotes(baseUrl: string, limit = 200): Promise<NoteListR
   return body as NoteListResponse;
 }
 
+/**
+ * Hands a scanned note to the server, which fetches it from the state portal,
+ * parses it and stores it. The write is idempotent on the chave, so scanning
+ * the same note twice updates the stored copy rather than duplicating it.
+ *
+ * Returns the parsed note, which is what the screen shows as confirmation.
+ */
+export async function ingestNote(baseUrl: string, payload: IngestPayload): Promise<ParsedNote> {
+  const { status, body } = await send(`${baseUrl}/api/nfce`, {
+    method: "POST",
+    headers: { accept: "application/json", "content-type": "application/json" },
+    body: JSON.stringify(payload),
+    timeoutMs: INGEST_TIMEOUT_MS,
+  });
+
+  if (status !== 200) throw new ApiError(ingestFailure(status, body));
+
+  if (!isRecord(body) || typeof body["chave"] !== "string") {
+    throw new ApiError("O servidor respondeu, mas não devolveu a nota.");
+  }
+  return body as unknown as ParsedNote;
+}
+
+/**
+ * The ingest endpoint names what went wrong; these are those names said in a
+ * way that means something to someone holding a receipt.
+ */
+function ingestFailure(status: number, body: unknown): string {
+  const code = isRecord(body) ? asString(body["error"]) : null;
+  const uf = isRecord(body) ? asString(body["uf"]) : null;
+
+  switch (code) {
+    case "invalid_chave":
+    case "invalid_body":
+      return "Esse QR code não é de uma nota fiscal.";
+    case "unsupported_uf":
+      return `O servidor ainda não lê notas desse estado (UF ${uf ?? "?"}) — por enquanto só Paraná.`;
+    case "fetch_failed":
+      return "O servidor não conseguiu abrir a nota no portal da Sefaz. Tente de novo em instantes.";
+    case "parse_failed":
+      return "O servidor abriu a nota no portal, mas não conseguiu ler o conteúdo dela.";
+    case "store_failed":
+      return "O servidor leu a nota, mas não conseguiu salvá-la.";
+    default: {
+      const detail = isRecord(body) ? (asString(body["message"]) ?? code) : null;
+      return `O servidor respondeu ${status}${detail ? ` — ${detail}` : "."}`;
+    }
+  }
+}
+
 type GetOptions = {
   /** Statuses whose JSON body is meaningful; anything else is reported as a failure. */
   expectedStatuses: number[];
 };
 
 async function getJson(url: string, { expectedStatuses }: GetOptions): Promise<unknown> {
+  const { status, body, text } = await send(url, {
+    method: "GET",
+    headers: { accept: "application/json" },
+    timeoutMs: TIMEOUT_MS,
+  });
+
+  if (!expectedStatuses.includes(status)) {
+    const detail =
+      (isRecord(body) && (asString(body["message"]) ?? asString(body["error"]))) ||
+      text.slice(0, 120) ||
+      "sem detalhes";
+    throw new ApiError(`O servidor respondeu ${status} — ${detail}`);
+  }
+
+  return body;
+}
+
+type SendOptions = {
+  method: "GET" | "POST";
+  headers: Record<string, string>;
+  body?: string;
+  timeoutMs: number;
+};
+
+/**
+ * One request, with the network failures already turned into sentences. The
+ * status comes back untouched: what an unexpected one means is the caller's to
+ * say, and the ingest endpoint says a great deal more with it than a read does.
+ */
+async function send(
+  url: string,
+  { method, headers, body: requestBody, timeoutMs }: SendOptions,
+): Promise<{ status: number; body: unknown; text: string }> {
   // React Native's fetch has no `AbortSignal.timeout`, so the timer is manual.
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   let res: Response;
   try {
     res = await fetch(url, {
-      method: "GET",
-      headers: { accept: "application/json" },
+      method,
+      headers,
+      ...(requestBody === undefined ? {} : { body: requestBody }),
       signal: controller.signal,
     });
   } catch (err) {
     if (controller.signal.aborted) {
-      throw new ApiError(`O servidor não respondeu em ${TIMEOUT_MS / 1000}s.`);
+      throw new ApiError(`O servidor não respondeu em ${timeoutMs / 1000}s.`);
     }
     const message = err instanceof Error ? err.message : String(err);
     throw new ApiError(
@@ -117,9 +209,9 @@ async function getJson(url: string, { expectedStatuses }: GetOptions): Promise<u
   }
 
   const text = await res.text();
-  let body: unknown = null;
+  let parsed: unknown = null;
   try {
-    body = text ? JSON.parse(text) : null;
+    parsed = text ? JSON.parse(text) : null;
   } catch {
     // A login portal or a reverse proxy answering HTML — not our API.
     if (res.ok) {
@@ -127,15 +219,7 @@ async function getJson(url: string, { expectedStatuses }: GetOptions): Promise<u
     }
   }
 
-  if (!expectedStatuses.includes(res.status)) {
-    const detail =
-      (isRecord(body) && (asString(body["message"]) ?? asString(body["error"]))) ||
-      text.slice(0, 120) ||
-      "sem detalhes";
-    throw new ApiError(`O servidor respondeu ${res.status} — ${detail}`);
-  }
-
-  return body;
+  return { status: res.status, body: parsed, text };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

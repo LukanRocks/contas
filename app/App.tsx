@@ -9,11 +9,13 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 // One module per icon: Metro does not tree-shake, so the package's index would
 // bundle every icon Lucide has.
 import House from "lucide-react-native/icons/house";
+import ScanQrCode from "lucide-react-native/icons/scan-qr-code";
 import Settings from "lucide-react-native/icons/settings";
 import { BackendContext } from "./src/backend";
 import type { SettingsStackParamList, TabParamList } from "./src/navigation";
 import { HomeScreen } from "./src/screens/HomeScreen";
 import { OnboardingScreen } from "./src/screens/OnboardingScreen";
+import { ScanScreen } from "./src/screens/ScanScreen";
 import { ServerScreen } from "./src/screens/ServerScreen";
 import { SettingsScreen } from "./src/screens/SettingsScreen";
 import { loadServer, saveServer } from "./src/storage";
@@ -24,8 +26,8 @@ import type { Theme } from "./src/theme";
 /**
  * Until a server is known there is nothing to navigate to, so onboarding sits
  * outside the navigator and is shown by a piece of state. Once an address is
- * saved the app is the tab bar: Início (the notes) and Ajustes, where the
- * server is changed from then on.
+ * saved the app is the tab bar: Escanear, Início (the notes) and Ajustes,
+ * where the server is changed from then on.
  */
 type Boot =
   | { status: "loading" }
@@ -90,8 +92,20 @@ function Tabs() {
 
   return (
     <Tab.Navigator
+      // Scanning sits left of the notes, but the app still opens on them.
+      initialRouteName="Home"
       screenOptions={{ headerShown: false, tabBarInactiveTintColor: theme.muted }}
     >
+      <Tab.Screen
+        name="Scan"
+        component={ScanScreen}
+        options={{
+          title: "Escanear",
+          tabBarIcon: ({ focused, color, size }) => (
+            <ScanQrCode color={color} size={size} strokeWidth={focused ? 2.5 : 2} />
+          ),
+        }}
+      />
       <Tab.Screen
         name="Home"
         component={HomeScreen}

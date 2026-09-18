@@ -37,12 +37,25 @@ database and a server that is not this one are all told apart at setup instead
 of at first use.
 
 **Every launch after** — the address is read back from the device and the app
-opens straight on the notes. From there a tab bar switches between **Início**
-and **Ajustes**.
+opens straight on the notes. From there a tab bar switches between **Escanear**,
+**Início** and **Ajustes**.
+
+**Escanear** — the camera, reading QR codes. A note's code is handed to
+`POST /api/nfce`, which fetches the note from its state portal, parses it and
+stores it; the parsed note comes back and is shown as the confirmation, with
+**Escanear outra** for the next receipt of the trip. Whether a code is a note
+at all stays the backend's call — the app only turns down what it can see is
+not one (a wifi code, a vCard), so nothing pointless leaves the phone and
+nothing the server would have accepted is refused here. The write is idempotent
+on the chave, so rescanning a note updates the stored copy instead of
+duplicating it. The camera is mounted only while the tab is on screen.
 
 **Início** — every scanned note from `GET /api/nfce`, newest emission first,
 same order as the web list: establishment, emission date, item count, and what
-was paid (`payable_c`, falling back to the items total). Pull to refresh.
+was paid (`payable_c`, falling back to the items total). Pull to refresh; the
+list also reloads whenever the tab comes into focus, so a note just scanned is
+already there. That reload is quiet — a failed one leaves the list as it was
+rather than replacing it with an error, which pulling to refresh would report.
 
 **Ajustes › Servidor** — names the server (it is "Servidor" until you do;
 clearing the name goes back to that) and changes the backend when it moves.
@@ -50,8 +63,6 @@ Same form and the same `/api/health` check as onboarding, run only when the
 address actually changes — renaming works with the server down. The saved
 address stays in force until a new one answers, so backing out leaves the app
 as it was.
-
-Scanning a note is still the web front end's job; this app only reads.
 
 ## Layout
 
@@ -63,13 +74,16 @@ src/
   api.ts            URL normalization, /api/health, /api/nfce
   backend.ts        the saved server, as a context for navigator screens
   navigation.ts     route names and params for the tabs and the Ajustes stack
+  scan.ts           what a scanned QR code means to the ingest endpoint
   storage.ts        the backend URL and its name on the device
   format.ts         BRL, dates, chave -- pt-BR, no Intl (see below)
   theme.ts          light/dark palette, mirroring web/public/styles.css
   types.ts          the backend fields this app reads
-  screens/          OnboardingScreen, HomeScreen, SettingsScreen, ServerScreen
+  screens/          OnboardingScreen, ScanScreen, HomeScreen, SettingsScreen,
+                    ServerScreen
   components/       NoteRow, ServerForm, ScreenHeader
-test/               format and URL normalization, under node --test
+test/               format, URL normalization and QR classification, under
+                    node --test
 ```
 
 ## Notes
@@ -89,6 +103,14 @@ test/               format and URL normalization, under node --test
   `expo-build-properties`, and iOS gets `NSAllowsLocalNetworking` plus a local
   network usage string. iOS will ask for permission the first time the app
   reaches a device on the local network.
+- **The camera** is `expo-camera`, configured through its plugin with a pt-BR
+  permission string and `recordAudioAndroid: false` — scanning a QR code has no
+  use for a microphone, and without that the Android build would ask for one.
+  Permission is requested on the Escanear tab itself, which also offers the
+  system settings once it has been denied.
+- **Ingesting gets its own timeout** (45s, against 10s for a read): the server
+  is not answering from its own database, it is fetching the note from a state
+  portal first.
 - **No `Intl`.** Money and dates are formatted by hand. Hermes ships a trimmed
   ICU on Android, so `toLocaleString("pt-BR")` does not behave the same on both
   platforms.

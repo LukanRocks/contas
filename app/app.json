@@ -36,6 +36,13 @@
             "usesCleartextTraffic": true
           }
         }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "O app usa a câmera para ler o QR code das notas fiscais.",
+          "recordAudioAndroid": false
+        }
       ]
     ],
     "web": {

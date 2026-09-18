@@ -14,6 +14,8 @@ export type Theme = {
   muted: string;
   accent: string;
   accentText: string;
+  okBg: string;
+  okText: string;
   errBg: string;
   errText: string;
 };
@@ -27,6 +29,8 @@ const light: Theme = {
   muted: "#646c78",
   accent: "#1f6feb",
   accentText: "#ffffff",
+  okBg: "#e7f6ec",
+  okText: "#1a7f37",
   errBg: "#fdeceb",
   errText: "#b42318",
 };
@@ -40,6 +44,8 @@ const dark: Theme = {
   muted: "#9aa3af",
   accent: "#4c8dff",
   accentText: "#0b1220",
+  okBg: "#12291a",
+  okText: "#58d68b",
   errBg: "#2c1618",
   errText: "#f8837c",
 };

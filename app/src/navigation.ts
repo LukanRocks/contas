@@ -8,6 +8,7 @@ export type SettingsStackParamList = {
 
 /** The tab bar — what the app is once a server is known. */
 export type TabParamList = {
+  Scan: undefined;
   Home: undefined;
   Settings: NavigatorScreenParams<SettingsStackParamList>;
 };
