@@ -72,9 +72,9 @@ are ignored), routes by UF, fetches, parses, cross-checks against the chave,
 upserts in a transaction, logs the parsed object, and returns it.
 
 A scanned URL is fetched **verbatim**; it carries the right domain and any
-signed parameters. A bare chave has none, so the public consulta URL for its
-state is built instead — for PR, `?p=<chave>|3|1` (versão 3, ambiente
-produção). That suffix carries no signed or note-specific data, but it is
+signed parameters. A bare chave has none, so the public lookup URL for its
+state is built instead — for PR, `?p=<chave>|3|1` (version 3, production
+environment). That suffix carries no signed or note-specific data, but it is
 required: the chave alone returns an empty page. Either way `source_url`
 records what was actually fetched.
 
@@ -171,8 +171,8 @@ the suite fails loudly rather than quietly skipping.
   `fetched_at` tracks the latest scrape.
 - **Items are never deduped.** The same product legitimately repeats across
   lines, so print order (`n_item`) is the only key.
-- **The chave is a checksum on the scrape.** It encodes the emitente CNPJ, série
-  and número; `src/crosscheck.ts` compares them to the scraped values and warns
+- **The chave is a checksum on the scrape.** It encodes the issuer's CNPJ, series
+  and number; `src/crosscheck.ts` compares them to the scraped values and warns
   on mismatch — an early signal that the portal's layout changed.
 - **CPF is stored deliberately.** Claimed notes can yield cashback under state
   programs. A populated `consumer_cpf` means "claimed", null means "unclaimed",

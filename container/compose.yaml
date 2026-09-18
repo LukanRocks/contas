@@ -11,7 +11,7 @@ services:
       # The SQLite database. Bind-mounted so it is trivial to back up.
       - ./data:/app/data
     environment:
-      # Optional: shows the "Exemplo" button with this QR URL prefilled.
+      # Optional: shows the example button with this QR URL prefilled.
       # A real note identifies a real person, so keep it in .env, not here.
       NFCE_SAMPLE_URL: ${NFCE_SAMPLE_URL:-}
     healthcheck:

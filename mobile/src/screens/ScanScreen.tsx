@@ -100,13 +100,13 @@ export function ScanScreen() {
         <OutcomeView
           outcome={outcome}
           onScanAgain={scanAgain}
-          // To the list, even if a note was left open on Início.
+          // To the list, even if a note was left open on Home.
           onSeeNotes={() => navigation.navigate("Home", { screen: "NoteList", pop: true })}
         />
       ) : (
         <View style={styles.flex}>
           {/* Mounted only while the tab is on screen: the camera should not stay
-              live behind Início or Ajustes. */}
+              live behind Home or Settings. */}
           {isFocused ? (
             <CameraView
               style={styles.flex}

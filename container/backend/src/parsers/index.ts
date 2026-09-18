@@ -22,12 +22,12 @@ export function isSupportedUf(uf: string): boolean {
 }
 
 /**
- * Public consulta URL for a chave, used when a note is ingested by key rather
+ * Public lookup URL for a chave, used when a note is ingested by key rather
  * than by scanning its QR code -- notes pulled from the Nota Paraná account
  * sit behind a login, but the same note is readable anonymously here.
  *
- * The "|3|1" suffix is versão 3, ambiente produção. It carries no signed or
- * note-specific data; the chave alone returns an empty page.
+ * The "|3|1" suffix is version 3, production environment. It carries no
+ * signed or note-specific data; the chave alone returns an empty page.
  */
 const CONSULTA_URLS: Record<string, (chave: string) => string> = {
   "41": (chave) =>

@@ -31,16 +31,16 @@ test("parses the note header", { skip: skipWithoutFixture }, () => {
   const n = note();
   assert.match(n.chave, /^\d{44}$/, "chave is 44 digits");
   assert.equal(n.uf, "41");
-  assert.match(n.emit_cnpj ?? "", /^\d{14}$/, "emitente CNPJ is digits only");
-  assert.ok((n.emit_name ?? "").length > 0, "emitente name is present");
-  assert.ok((n.emit_address ?? "").length > 0, "emitente address is present");
+  assert.match(n.emit_cnpj ?? "", /^\d{14}$/, "issuer CNPJ is digits only");
+  assert.ok((n.emit_name ?? "").length > 0, "issuer name is present");
+  assert.ok((n.emit_address ?? "").length > 0, "issuer address is present");
   assert.match(n.emitted_at ?? "", /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/, "emitted_at is ISO");
   assert.match(n.numero ?? "", /^\d+$/);
   assert.match(n.serie ?? "", /^\d+$/);
 });
 
 test("the scrape agrees with the chave", { skip: skipWithoutFixture }, () => {
-  // Cross-checks CNPJ, número, série and the item count against the key itself.
+  // Cross-checks CNPJ, number, series and the item count against the key itself.
   assert.deepEqual(crossCheckAgainstChave(note()), []);
 });
 

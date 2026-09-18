@@ -2,7 +2,7 @@ import { decodeChave } from "./chave.ts";
 import type { ParsedNote } from "./types.ts";
 
 /**
- * The chave encodes the emitente CNPJ, série and número, so it doubles as a
+ * The chave encodes the issuer's CNPJ, series and number, so it doubles as a
  * checksum on the scrape. A mismatch is a cheap early signal that the portal's
  * page layout changed under us.
  */

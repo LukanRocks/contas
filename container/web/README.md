@@ -21,14 +21,14 @@ defaults to this folder's `public/`.
 
 ## What it does
 
-- **Scan** — paste an NFC-e QR URL and `POST /api/nfce`. **Exemplo** fills in the
-  sample receipt. Success jumps to the new note; failures show the backend's
-  own error message.
+- **Scan** — paste an NFC-e QR URL and `POST /api/nfce`. An example button
+  fills in the sample receipt. Success jumps to the new note; failures show the
+  backend's own error message.
 - **List** — `GET /api/nfce`, newest emission first. Click or press Enter on a row
   to open it.
-- **Detail** — `GET /api/nfce/:chave`, showing every extracted field: emitente,
-  totals, consumidor, all line items, and collection metadata.
-- **Nota original** — the captured portal page itself, rendered as the last
+- **Detail** — `GET /api/nfce/:chave`, showing every extracted field: issuer,
+  totals, consumer, all line items, and collection metadata.
+- **Original note** — the captured portal page itself, rendered as the last
   section from `GET /api/nfce/:chave/html`.
 
 Routing is hash-based (`#/`, `#/nota/<chave>`), so notes are deep-linkable and

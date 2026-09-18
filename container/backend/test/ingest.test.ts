@@ -330,7 +330,7 @@ test("POST /api/nfce accepts a chave printed in groups of four", { skip: skipWit
   assert.equal(res.status, 200);
   assert.deepEqual(counts(db), { notes: 1, items: n.items.length });
 
-  // Fetched from the public consulta URL, which needs the "|3|1" suffix --
+  // Fetched from the public lookup URL, which needs the "|3|1" suffix --
   // the chave alone returns an empty page.
   assert.equal(calls.length, 1);
   assert.equal(calls[0], `https://www.fazenda.pr.gov.br/nfce/qrcode?p=${n.chave}%7C3%7C1`);

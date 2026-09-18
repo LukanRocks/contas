@@ -37,45 +37,45 @@ database and a server that is not this one are all told apart at setup instead
 of at first use.
 
 **Every launch after** — the address is read back from the device and the app
-opens straight on the notes. From there a tab bar switches between **Escanear**,
-**Início** and **Ajustes**.
+opens straight on the notes. From there a tab bar switches between **Scan**,
+**Home** and **Settings**.
 
-**Escanear** — the camera, reading QR codes. A note's code is handed to
+**Scan** — the camera, reading QR codes. A note's code is handed to
 `POST /api/nfce`, which fetches the note from its state portal, parses it and
 stores it; the parsed note comes back and is shown as the confirmation, with
-**Escanear outra** for the next receipt of the trip. Whether a code is a note
+**Scan another** for the next receipt of the trip. Whether a code is a note
 at all stays the backend's call — the app only turns down what it can see is
 not one (a wifi code, a vCard), so nothing pointless leaves the phone and
 nothing the server would have accepted is refused here. The write is idempotent
 on the chave, so rescanning a note updates the stored copy instead of
 duplicating it. The camera is mounted only while the tab is on screen.
 
-**Início** — every scanned note from `GET /api/nfce`, newest emission first,
+**Home** — every scanned note from `GET /api/nfce`, newest emission first,
 same order as the web list: establishment, emission date, item count, and what
 was paid (`payable_c`, falling back to the items total). Pull to refresh; the
 list also reloads whenever the tab comes into focus, so a note just scanned is
 already there. That reload is quiet — a failed one leaves the list as it was
 rather than replacing it with an error, which pulling to refresh would report.
 
-**Início › a note** — tapping a note opens all of it from `GET /api/nfce/:chave`,
+**Home › a note** — tapping a note opens all of it from `GET /api/nfce/:chave`,
 in the web detail page's order: the issuer (CNPJ, address, UF, the chave in
 groups of four, the QR URL), the totals, the consumer, every line with its
 quantity, unit price and store code, and when the server fetched it. The chave
-and URL can be selected and copied. **Abrir no navegador** opens the page the
+and URL can be selected and copied. **Open in browser** opens the page the
 note was read from, `GET /api/nfce/:chave/html`, in the system browser — the
 server sends it with `content-security-policy: sandbox`, so it shows there the
 way the web page's iframe shows it, with no web view in the app.
 
-**Ajustes › Aparência** — Claro or Escuro, or **Do aparelho**, the default:
+**Settings › Appearance** — Light or Dark, or **Device setting**, the default:
 the palette follows the phone's light/dark setting, live. Picking one pins it.
 
-**Ajustes › Idioma** — Portuguese or English, or **Do aparelho**, which is the
-default: the device's preferred languages are walked in order and the first one
-the app speaks wins, English if it speaks neither. Picking a language pins it;
-leaving it on the device setting means a phone switched to English later carries
-the app with it, live.
+**Settings › Language** — Portuguese or English, or **Device setting**, which is
+the default: the device's preferred languages are walked in order and the first
+one the app speaks wins, English if it speaks neither. Picking a language pins
+it; leaving it on the device setting means a phone switched to English later
+carries the app with it, live.
 
-**Ajustes › Servidor** — names the server (it is "Servidor" until you do;
+**Settings › Server** — names the server (it is "Server" until you do;
 clearing the name goes back to that) and changes the backend when it moves.
 Same form and the same `/api/health` check as onboarding, run only when the
 address actually changes — renaming works with the server down. The saved
@@ -91,7 +91,7 @@ app.json            Expo config: icons, bundle identifiers, network policy
 src/
   api.ts            URL normalization, /api/health, /api/nfce, /api/nfce/:chave
   backend.ts        the saved server, as a context for navigator screens
-  navigation.ts     route names and params for the tabs and the Início and Ajustes stacks
+  navigation.ts     route names and params for the tabs and the Home and Settings stacks
   scan.ts           what a scanned QR code means to the ingest endpoint
   i18n/
     strings.ts      every word, in pt and en, behind one type
@@ -131,7 +131,7 @@ test/               format, URL normalization, the note endpoint's answers, QR
 - **The camera** is `expo-camera`, configured through its plugin with a pt-BR
   permission string and `recordAudioAndroid: false` — scanning a QR code has no
   use for a microphone, and without that the Android build would ask for one.
-  Permission is requested on the Escanear tab itself, which also offers the
+  Permission is requested on the Scan tab itself, which also offers the
   system settings once it has been denied.
 - **Ingesting gets its own timeout** (45s, against 10s for a read): the server
   is not answering from its own database, it is fetching the note from a state
