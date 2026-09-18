@@ -10,15 +10,23 @@ import {
 } from "react-native";
 import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import type { CompositeNavigationProp } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { ApiError, listNotes } from "../api";
 import { useBackend } from "../backend";
 import { NoteRow } from "../components/NoteRow";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { hostLabel, plural } from "../format";
 import { useStrings } from "../i18n";
-import type { TabParamList } from "../navigation";
+import type { HomeStackParamList, TabParamList } from "../navigation";
 import { useTheme } from "../theme";
 import type { NoteSummary } from "../types";
+
+/** A note opens inside the Home stack; the server is changed over on the Settings tab. */
+type Navigation = CompositeNavigationProp<
+  NativeStackNavigationProp<HomeStackParamList, "NoteList">,
+  BottomTabNavigationProp<TabParamList>
+>;
 
 type State =
   | { status: "loading" }
@@ -30,7 +38,7 @@ export function HomeScreen() {
   const theme = useTheme();
   const t = useStrings();
   const { baseUrl } = useBackend();
-  const navigation = useNavigation<BottomTabNavigationProp<TabParamList, "Home">>();
+  const navigation = useNavigation<Navigation>();
   const [state, setState] = useState<State>({ status: "loading" });
   const [refreshing, setRefreshing] = useState(false);
 
@@ -58,7 +66,7 @@ export function HomeScreen() {
     [baseUrl, t],
   );
 
-  // Reloaded whenever the tab comes into focus, so a note just scanned on
+  // Reloaded whenever the list comes into focus, so a note just scanned on
   // Scan is already here. Only the first visit to a given server shows the
   // spinner; after that the list reloads underneath what is on screen.
   const loadedFor = useRef<string | null>(null);
@@ -112,7 +120,9 @@ export function HomeScreen() {
         <FlatList
           data={state.notes}
           keyExtractor={(note) => note.chave}
-          renderItem={({ item }) => <NoteRow note={item} />}
+          renderItem={({ item }) => (
+            <NoteRow note={item} onPress={() => navigation.navigate("Note", { chave: item.chave })} />
+          )}
           contentContainerStyle={[styles.list, state.notes.length === 0 && styles.flex]}
           refreshControl={
             <RefreshControl

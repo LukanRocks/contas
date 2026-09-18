@@ -100,7 +100,8 @@ export function ScanScreen() {
         <OutcomeView
           outcome={outcome}
           onScanAgain={scanAgain}
-          onSeeNotes={() => navigation.navigate("Home")}
+          // To the list, even if a note was left open on Início.
+          onSeeNotes={() => navigation.navigate("Home", { screen: "NoteList", pop: true })}
         />
       ) : (
         <View style={styles.flex}>

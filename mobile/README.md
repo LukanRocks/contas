@@ -57,6 +57,15 @@ list also reloads whenever the tab comes into focus, so a note just scanned is
 already there. That reload is quiet — a failed one leaves the list as it was
 rather than replacing it with an error, which pulling to refresh would report.
 
+**Início › a note** — tapping a note opens all of it from `GET /api/nfce/:chave`,
+in the web detail page's order: the issuer (CNPJ, address, UF, the chave in
+groups of four, the QR URL), the totals, the consumer, every line with its
+quantity, unit price and store code, and when the server fetched it. The chave
+and URL can be selected and copied. **Abrir no navegador** opens the page the
+note was read from, `GET /api/nfce/:chave/html`, in the system browser — the
+server sends it with `content-security-policy: sandbox`, so it shows there the
+way the web page's iframe shows it, with no web view in the app.
+
 **Ajustes › Aparência** — Claro or Escuro, or **Do aparelho**, the default:
 the palette follows the phone's light/dark setting, live. Picking one pins it.
 
@@ -80,27 +89,27 @@ index.ts            Expo entry point
 App.tsx             the saved-URL bootstrap, then onboarding or the tab bar
 app.json            Expo config: icons, bundle identifiers, network policy
 src/
-  api.ts            URL normalization, /api/health, /api/nfce
+  api.ts            URL normalization, /api/health, /api/nfce, /api/nfce/:chave
   backend.ts        the saved server, as a context for navigator screens
-  navigation.ts     route names and params for the tabs and the Ajustes stack
+  navigation.ts     route names and params for the tabs and the Início and Ajustes stacks
   scan.ts           what a scanned QR code means to the ingest endpoint
   i18n/
     strings.ts      every word, in pt and en, behind one type
     language.ts     which language to render in
     index.ts        the context the screens read it through
   storage.ts        the server, the language and the palette, on the device
-  format.ts         BRL, dates, chave -- pt-BR, no Intl (see below)
+  format.ts         BRL, quantities, dates, chave, CNPJ/CPF -- pt-BR, no Intl (see below)
   theme/
     palette.ts      the light and dark colours, shared with the web front end
     scheme.ts       which of the two to render in
     index.ts        the context the components read it through
   types.ts          the backend fields this app reads
-  screens/          OnboardingScreen, ScanScreen, HomeScreen, SettingsScreen,
-                    ServerScreen, LanguageScreen, ThemeScreen
+  screens/          OnboardingScreen, ScanScreen, HomeScreen, NoteScreen,
+                    SettingsScreen, ServerScreen, LanguageScreen, ThemeScreen
   components/       NoteRow, ServerForm, ScreenHeader, ChoiceList
 locales/            the iOS permission strings, per language
-test/               format, URL normalization, QR classification, language and
-                    palette resolution, under node --test
+test/               format, URL normalization, the note endpoint's answers, QR
+                    classification, language and palette resolution, under node --test
 ```
 
 ## Notes
@@ -143,6 +152,7 @@ test/               format, URL normalization, QR classification, language and
   the throw and the moment it is read. `api.ts` therefore holds no words at all.
 - **Money is not translated.** `R$ 844,57` is an amount on a Brazilian fiscal
   document, not a rendering preference, so it reads the same in both languages.
+  Nor are quantities (`1,352 KG × R$ 6,99`), which share its line.
   Dates are translated, because `02/09` and `09/02` are the same characters and
   different days: English names the month (`2 Sep 2026`). Times stay 24-hour.
 - **The iOS permission dialogs** are localized too, through `expo.locales` in
