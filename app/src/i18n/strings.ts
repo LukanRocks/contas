@@ -1,4 +1,5 @@
 import type { Language } from "./language";
+import type { ColorScheme } from "../theme/scheme";
 
 /** The pieces a date is rendered from; how they are put together is per-language. */
 export type DateParts = {
@@ -86,13 +87,21 @@ export type Strings = {
     title: string;
     languageRow: string;
     languageOpenHint: string;
+    themeRow: string;
+    themeOpenHint: string;
+    /** The "follow the device" option, on every screen that offers one. */
+    deviceDefault: string;
+    followingDevice: (resolved: string) => string;
   };
 
   language: {
     screenTitle: string;
-    system: string;
-    systemHint: (resolved: string) => string;
     names: Record<Language, string>;
+  };
+
+  theme: {
+    screenTitle: string;
+    names: Record<ColorScheme, string>;
   };
 
   errors: {
@@ -178,13 +187,20 @@ export const pt: Strings = {
     title: "Ajustes",
     languageRow: "Idioma",
     languageOpenHint: "Abre a escolha de idioma",
+    themeRow: "Aparência",
+    themeOpenHint: "Abre a escolha de aparência",
+    deviceDefault: "Do aparelho",
+    followingDevice: (resolved) => `Seguindo o aparelho: ${resolved}`,
   },
 
   language: {
     screenTitle: "Idioma",
-    system: "Do aparelho",
-    systemHint: (resolved) => `Seguindo o aparelho: ${resolved}`,
     names: { pt: "Português", en: "Inglês" },
+  },
+
+  theme: {
+    screenTitle: "Aparência",
+    names: { light: "Claro", dark: "Escuro" },
   },
 
   errors: {
@@ -282,13 +298,20 @@ export const en: Strings = {
     title: "Settings",
     languageRow: "Language",
     languageOpenHint: "Opens the language choice",
+    themeRow: "Appearance",
+    themeOpenHint: "Opens the appearance choice",
+    deviceDefault: "Device setting",
+    followingDevice: (resolved) => `Following the device: ${resolved}`,
   },
 
   language: {
     screenTitle: "Language",
-    system: "Device language",
-    systemHint: (resolved) => `Following the device: ${resolved}`,
     names: { pt: "Portuguese", en: "English" },
+  },
+
+  theme: {
+    screenTitle: "Appearance",
+    names: { light: "Light", dark: "Dark" },
   },
 
   errors: {

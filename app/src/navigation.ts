@@ -5,6 +5,7 @@ export type SettingsStackParamList = {
   SettingsHome: undefined;
   Server: undefined;
   Language: undefined;
+  Theme: undefined;
 };
 
 /** The tab bar — what the app is once a server is known. */

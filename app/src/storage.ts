@@ -1,6 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { isLanguageSetting } from "./i18n/language";
 import type { LanguageSetting } from "./i18n/language";
+import { isThemeSetting } from "./theme/scheme";
+import type { ThemeSetting } from "./theme/scheme";
 
 /**
  * Where the backend lives is the whole of this app's setup, and it is not a
@@ -9,6 +11,7 @@ import type { LanguageSetting } from "./i18n/language";
 const URL_KEY = "nf-price-tracker:backend-url";
 const NAME_KEY = "nf-price-tracker:backend-name";
 const LANGUAGE_KEY = "nf-price-tracker:language";
+const THEME_KEY = "nf-price-tracker:theme";
 
 export type Server = {
   baseUrl: string;
@@ -62,5 +65,25 @@ export async function saveLanguageSetting(setting: LanguageSetting): Promise<voi
   } catch (err) {
     // The app keeps the choice for this run either way; only persistence is lost.
     console.warn("[storage] could not save the language setting", err);
+  }
+}
+
+/** "system" on a first run, and whenever the stored value is not one we know. */
+export async function loadThemeSetting(): Promise<ThemeSetting> {
+  try {
+    const stored = await AsyncStorage.getItem(THEME_KEY);
+    return isThemeSetting(stored) ? stored : "system";
+  } catch (err) {
+    console.warn("[storage] could not read the theme setting", err);
+    return "system";
+  }
+}
+
+export async function saveThemeSetting(setting: ThemeSetting): Promise<void> {
+  try {
+    await AsyncStorage.setItem(THEME_KEY, setting);
+  } catch (err) {
+    // The app keeps the choice for this run either way; only persistence is lost.
+    console.warn("[storage] could not save the theme setting", err);
   }
 }

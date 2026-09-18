@@ -57,6 +57,9 @@ list also reloads whenever the tab comes into focus, so a note just scanned is
 already there. That reload is quiet — a failed one leaves the list as it was
 rather than replacing it with an error, which pulling to refresh would report.
 
+**Ajustes › Aparência** — Claro or Escuro, or **Do aparelho**, the default:
+the palette follows the phone's light/dark setting, live. Picking one pins it.
+
 **Ajustes › Idioma** — Portuguese or English, or **Do aparelho**, which is the
 default: the device's preferred languages are walked in order and the first one
 the app speaks wins, English if it speaks neither. Picking a language pins it;
@@ -85,16 +88,19 @@ src/
     strings.ts      every word, in pt and en, behind one type
     language.ts     which language to render in
     index.ts        the context the screens read it through
-  storage.ts        the backend URL and its name on the device
+  storage.ts        the server, the language and the palette, on the device
   format.ts         BRL, dates, chave -- pt-BR, no Intl (see below)
-  theme.ts          light/dark palette, mirroring web/public/styles.css
+  theme/
+    palette.ts      the light and dark colours, mirroring web/public/styles.css
+    scheme.ts       which of the two to render in
+    index.ts        the context the components read it through
   types.ts          the backend fields this app reads
   screens/          OnboardingScreen, ScanScreen, HomeScreen, SettingsScreen,
-                    ServerScreen, LanguageScreen
-  components/       NoteRow, ServerForm, ScreenHeader
+                    ServerScreen, LanguageScreen, ThemeScreen
+  components/       NoteRow, ServerForm, ScreenHeader, ChoiceList
 locales/            the iOS permission strings, per language
-test/               format, URL normalization, QR classification and language
-                    resolution, under node --test
+test/               format, URL normalization, QR classification, language and
+                    palette resolution, under node --test
 ```
 
 ## Notes
@@ -127,6 +133,12 @@ test/               format, URL normalization, QR classification and language
   it — so a missing string, or one whose interpolation changed, is a typecheck
   failure rather than a blank label found on a phone. Nothing is loaded at
   runtime and there is no i18n dependency.
+- **The palette and the language are the same shape.** A stored setting of
+  "system", "pt"/"en" or "light"/"dark"; a pure `resolve*` that turns it plus
+  what the device says into what to render; a context above the whole app so a
+  pinned choice beats the device everywhere. `useTheme()` reads that context
+  rather than `useColorScheme()`, which is why every component kept working
+  unchanged when the setting arrived.
 - **Failures carry how to say themselves, not the words.** `ApiError` holds a
   `describe(t)` rather than a message, because the language can change between
   the throw and the moment it is read. `api.ts` therefore holds no words at all.

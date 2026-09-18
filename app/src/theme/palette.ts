@@ -1,9 +1,10 @@
-import { useColorScheme } from "react-native";
+import type { ColorScheme } from "./scheme";
 
 /**
  * The palette mirrors web/public/styles.css so both front ends read as the same
- * product. React Native has no custom properties and no media queries, so the
- * two sets are swapped by `useColorScheme` instead.
+ * product. React Native has no custom properties and no media queries, so
+ * which of the two applies is decided in `scheme.ts` -- by the device, or by
+ * what the user pinned in Settings.
  */
 export type Theme = {
   dark: boolean;
@@ -50,6 +51,5 @@ const dark: Theme = {
   errText: "#f8837c",
 };
 
-export function useTheme(): Theme {
-  return useColorScheme() === "dark" ? dark : light;
-}
+/** Picked by `resolveScheme`, never read directly. */
+export const PALETTES: Record<ColorScheme, Theme> = { light, dark };
