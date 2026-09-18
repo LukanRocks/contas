@@ -15,7 +15,7 @@ type Props<T extends string> = {
   onSelect: (key: T) => void;
 };
 
-/** One settings choice, ticked. Shared by Settings › Language and › Appearance. */
+/** One settings choice, ticked. Shared by Settings › Language, › Appearance and › Start screen. */
 export function ChoiceList<T extends string>({ options, selected, onSelect }: Props<T>) {
   const theme = useTheme();
 

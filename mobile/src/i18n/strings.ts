@@ -124,6 +124,8 @@ export type Strings = {
     languageOpenHint: string;
     themeRow: string;
     themeOpenHint: string;
+    startTabRow: string;
+    startTabOpenHint: string;
     /** The "follow the device" option, on every screen that offers one. */
     deviceDefault: string;
     followingDevice: (resolved: string) => string;
@@ -137,6 +139,12 @@ export type Strings = {
   theme: {
     screenTitle: string;
     names: Record<ColorScheme, string>;
+  };
+
+  /** The choices themselves are the tab bar's labels, in `tabs`. */
+  startTab: {
+    screenTitle: string;
+    appliesNextStart: string;
   };
 
   errors: {
@@ -265,6 +273,8 @@ export const pt: Strings = {
     languageOpenHint: "Abre a escolha de idioma",
     themeRow: "Aparência",
     themeOpenHint: "Abre a escolha de aparência",
+    startTabRow: "Tela de abertura",
+    startTabOpenHint: "Abre a escolha da tela de abertura",
     deviceDefault: "Do aparelho",
     followingDevice: (resolved) => `Seguindo o aparelho: ${resolved}`,
   },
@@ -277,6 +287,11 @@ export const pt: Strings = {
   theme: {
     screenTitle: "Aparência",
     names: { light: "Claro", dark: "Escuro" },
+  },
+
+  startTab: {
+    screenTitle: "Tela de abertura",
+    appliesNextStart: "Vale a partir da próxima vez que o app for iniciado.",
   },
 
   errors: {
@@ -417,6 +432,8 @@ export const en: Strings = {
     languageOpenHint: "Opens the language choice",
     themeRow: "Appearance",
     themeOpenHint: "Opens the appearance choice",
+    startTabRow: "Start screen",
+    startTabOpenHint: "Opens the start screen choice",
     deviceDefault: "Device setting",
     followingDevice: (resolved) => `Following the device: ${resolved}`,
   },
@@ -429,6 +446,11 @@ export const en: Strings = {
   theme: {
     screenTitle: "Appearance",
     names: { light: "Light", dark: "Dark" },
+  },
+
+  startTab: {
+    screenTitle: "Start screen",
+    appliesNextStart: "Takes effect the next time the app starts.",
   },
 
   errors: {

@@ -1,6 +1,7 @@
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import ChevronRight from "lucide-react-native/icons/chevron-right";
+import DoorOpen from "lucide-react-native/icons/door-open";
 import Languages from "lucide-react-native/icons/languages";
 import Palette from "lucide-react-native/icons/palette";
 import Server from "lucide-react-native/icons/server";
@@ -10,14 +11,16 @@ import { ScreenHeader } from "../components/ScreenHeader";
 import { hostLabel } from "../format";
 import { useI18n } from "../i18n";
 import type { SettingsStackParamList } from "../navigation";
+import { startTabLabel, useStartTab } from "../startTab";
 import { useTheme, useThemeChoice } from "../theme";
 
-/** Settings: which server the app reads from, and which language it speaks. */
+/** Settings: which server the app reads from, how it looks and speaks, and where it opens. */
 export function SettingsScreen() {
   const theme = useTheme();
   const { baseUrl, name } = useBackend();
   const { t, setting, language } = useI18n();
   const { setting: themeSetting, scheme } = useThemeChoice();
+  const { startTab } = useStartTab();
   const navigation = useNavigation<NativeStackNavigationProp<SettingsStackParamList>>();
 
   return (
@@ -84,6 +87,28 @@ export function SettingsScreen() {
             </Text>
             <Text style={[styles.rowValue, { color: theme.muted }]} numberOfLines={1}>
               {themeSetting === "system" ? t.settings.deviceDefault : t.theme.names[scheme]}
+            </Text>
+          </View>
+          <ChevronRight size={18} color={theme.muted} />
+        </Pressable>
+
+        <Pressable
+          onPress={() => navigation.navigate("StartTab")}
+          accessibilityRole="button"
+          accessibilityHint={t.settings.startTabOpenHint}
+          style={({ pressed }) => [
+            styles.row,
+            styles.spaced,
+            { backgroundColor: theme.surface, borderColor: theme.border, opacity: pressed ? 0.6 : 1 },
+          ]}
+        >
+          <DoorOpen size={20} color={theme.accent} />
+          <View style={styles.rowText}>
+            <Text style={[styles.rowTitle, { color: theme.text }]} numberOfLines={1}>
+              {t.settings.startTabRow}
+            </Text>
+            <Text style={[styles.rowValue, { color: theme.muted }]} numberOfLines={1}>
+              {startTabLabel(startTab, t)}
             </Text>
           </View>
           <ChevronRight size={18} color={theme.muted} />

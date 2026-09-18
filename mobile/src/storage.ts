@@ -1,6 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { isLanguageSetting } from "./i18n/language";
 import type { LanguageSetting } from "./i18n/language";
+import { isStartTab } from "./startTab";
+import type { StartTab } from "./startTab";
 import { isThemeSetting } from "./theme/scheme";
 import type { ThemeSetting } from "./theme/scheme";
 
@@ -12,6 +14,7 @@ const URL_KEY = "nf-price-tracker:backend-url";
 const NAME_KEY = "nf-price-tracker:backend-name";
 const LANGUAGE_KEY = "nf-price-tracker:language";
 const THEME_KEY = "nf-price-tracker:theme";
+const START_TAB_KEY = "nf-price-tracker:start-tab";
 
 export type Server = {
   baseUrl: string;
@@ -85,5 +88,25 @@ export async function saveThemeSetting(setting: ThemeSetting): Promise<void> {
   } catch (err) {
     // The app keeps the choice for this run either way; only persistence is lost.
     console.warn("[storage] could not save the theme setting", err);
+  }
+}
+
+/** The notes on a first run, and whenever the stored value is not a tab we know. */
+export async function loadStartTab(): Promise<StartTab> {
+  try {
+    const stored = await AsyncStorage.getItem(START_TAB_KEY);
+    return isStartTab(stored) ? stored : "Home";
+  } catch (err) {
+    console.warn("[storage] could not read the start tab", err);
+    return "Home";
+  }
+}
+
+export async function saveStartTab(tab: StartTab): Promise<void> {
+  try {
+    await AsyncStorage.setItem(START_TAB_KEY, tab);
+  } catch (err) {
+    // The app opens on the notes next time instead; only persistence is lost.
+    console.warn("[storage] could not save the start tab", err);
   }
 }

@@ -37,8 +37,8 @@ database and a server that is not this one are all told apart at setup instead
 of at first use.
 
 **Every launch after** — the address is read back from the device and the app
-opens straight on the notes. From there a tab bar switches between **Scan**,
-**Home** and **Settings**.
+opens straight on the notes, or on **Scan** if Settings › Start screen says so.
+From there a tab bar switches between **Scan**, **Home** and **Settings**.
 
 **Scan** — the camera, reading QR codes. A note's code is handed to
 `POST /api/nfce`, which fetches the note from its state portal, parses it and
@@ -75,6 +75,11 @@ one the app speaks wins, English if it speaks neither. Picking a language pins
 it; leaving it on the device setting means a phone switched to English later
 carries the app with it, live.
 
+**Settings › Start screen** — **Notes**, the default, or **Scan**, for someone
+who mostly opens the app at the till. A new pick is saved at once but applies
+the next time the app starts: the tab bar reads it only when it mounts, so
+choosing Scan does not pull you out of Settings.
+
 **Settings › Server** — names the server (it is "Server" until you do;
 clearing the name goes back to that) and changes the backend when it moves.
 Same form and the same `/api/health` check as onboarding, run only when the
@@ -93,11 +98,12 @@ src/
   backend.ts        the saved server, as a context for navigator screens
   navigation.ts     route names and params for the tabs and the Home and Settings stacks
   scan.ts           what a scanned QR code means to the ingest endpoint
+  startTab.ts       which tab the app opens on, and the context Settings changes it through
   i18n/
     strings.ts      every word, in pt and en, behind one type
     language.ts     which language to render in
     index.ts        the context the screens read it through
-  storage.ts        the server, the language and the palette, on the device
+  storage.ts        the server, the language, the palette and the start tab, on the device
   format.ts         BRL, quantities, dates, chave, CNPJ/CPF -- pt-BR, no Intl (see below)
   theme/
     palette.ts      the light and dark colours, shared with the web front end
@@ -105,11 +111,13 @@ src/
     index.ts        the context the components read it through
   types.ts          the backend fields this app reads
   screens/          OnboardingScreen, ScanScreen, HomeScreen, NoteScreen,
-                    SettingsScreen, ServerScreen, LanguageScreen, ThemeScreen
+                    SettingsScreen, ServerScreen, LanguageScreen, ThemeScreen,
+                    StartTabScreen
   components/       NoteRow, ServerForm, ScreenHeader, ChoiceList
 locales/            the iOS permission strings, per language
 test/               format, URL normalization, the note endpoint's answers, QR
-                    classification, language and palette resolution, under node --test
+                    classification, language and palette resolution, the start
+                    tab, under node --test
 ```
 
 ## Notes

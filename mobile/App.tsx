@@ -25,13 +25,18 @@ import { ScanScreen } from "./src/screens/ScanScreen";
 import { LanguageScreen } from "./src/screens/LanguageScreen";
 import { ServerScreen } from "./src/screens/ServerScreen";
 import { SettingsScreen } from "./src/screens/SettingsScreen";
+import { StartTabScreen } from "./src/screens/StartTabScreen";
 import { ThemeScreen } from "./src/screens/ThemeScreen";
+import { StartTabContext, useStartTab } from "./src/startTab";
+import type { StartTab } from "./src/startTab";
 import {
   loadLanguageSetting,
   loadServer,
+  loadStartTab,
   loadThemeSetting,
   saveLanguageSetting,
   saveServer,
+  saveStartTab,
   saveThemeSetting,
 } from "./src/storage";
 import type { Server } from "./src/storage";
@@ -59,6 +64,7 @@ function App() {
   const [boot, setBoot] = useState<Boot>({ status: "loading" });
   const [languageSetting, setLanguageSetting] = useState<LanguageSetting>("system");
   const [themeSetting, setThemeSetting] = useState<ThemeSetting>("system");
+  const [startTab, setStartTabState] = useState<StartTab>("Home");
 
   // The device's own preferences, both of which update live if the phone is
   // changed while the app is open.
@@ -67,14 +73,15 @@ function App() {
 
   // One read of the device's store, on launch. Nothing is rendered before it
   // answers, so a returning user never sees onboarding flash by -- or the app
-  // in a language they turned off.
+  // in a language they turned off, or on a tab they did not ask to open on.
   useEffect(() => {
     let cancelled = false;
-    void Promise.all([loadServer(), loadLanguageSetting(), loadThemeSetting()]).then(
-      ([saved, language, themePick]) => {
+    void Promise.all([loadServer(), loadLanguageSetting(), loadThemeSetting(), loadStartTab()]).then(
+      ([saved, language, themePick, tab]) => {
         if (cancelled) return;
         setLanguageSetting(language);
         setThemeSetting(themePick);
+        setStartTabState(tab);
         setBoot(saved ? { status: "ready", server: saved } : { status: "onboarding" });
       },
     );
@@ -93,6 +100,11 @@ function App() {
     void saveThemeSetting(next);
   }, []);
 
+  const setStartTab = useCallback((next: StartTab) => {
+    setStartTabState(next);
+    void saveStartTab(next);
+  }, []);
+
   const i18n = useMemo(() => {
     const language = resolveLanguage(
       languageSetting,
@@ -105,6 +117,8 @@ function App() {
     const scheme = resolveScheme(themeSetting, deviceScheme);
     return { theme: PALETTES[scheme], setting: themeSetting, scheme, setTheme };
   }, [themeSetting, deviceScheme, setTheme]);
+
+  const startTabChoice = useMemo(() => ({ startTab, setStartTab }), [startTab, setStartTab]);
 
   // From onboarding and from Settings › Server. A new address has always
   // just answered /api/health; an unchanged one is only being renamed.
@@ -121,7 +135,9 @@ function App() {
   return (
     <ThemeContext value={themeChoice}>
       <I18nContext value={i18n}>
-        <Shell loading={boot.status === "loading"} backend={backend} onConnected={setServer} />
+        <StartTabContext value={startTabChoice}>
+          <Shell loading={boot.status === "loading"} backend={backend} onConnected={setServer} />
+        </StartTabContext>
       </I18nContext>
     </ThemeContext>
   );
@@ -161,11 +177,14 @@ function Shell({ loading, backend, onConnected }: ShellProps) {
 function Tabs() {
   const theme = useTheme();
   const t = useStrings();
+  const { startTab } = useStartTab();
 
   return (
     <Tab.Navigator
-      // Scanning sits left of the notes, but the app still opens on them.
-      initialRouteName="Home"
+      // The notes unless Settings › Start screen says otherwise. Only read when
+      // the navigator mounts, so a new pick waits for the next start rather
+      // than pulling the user out of Settings.
+      initialRouteName={startTab}
       screenOptions={{ headerShown: false, tabBarInactiveTintColor: theme.muted }}
     >
       <Tab.Screen
@@ -247,6 +266,11 @@ function SettingsNavigator() {
         name="Theme"
         component={ThemeScreen}
         options={{ title: t.theme.screenTitle }}
+      />
+      <SettingsStack.Screen
+        name="StartTab"
+        component={StartTabScreen}
+        options={{ title: t.startTab.screenTitle }}
       />
     </SettingsStack.Navigator>
   );
