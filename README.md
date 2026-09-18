@@ -25,7 +25,7 @@ Then open <http://localhost:3000>. Tests, Docker and adding a package are in
 The mobile app:
 
 ```bash
-cd mobile && pnpm install && pnpm start
+cd mobile && pnpm install && pnpm ios
 ```
 
 See [mobile/README.md](mobile/README.md).

@@ -10,7 +10,6 @@
   },
   "scripts": {
     "dev": "pnpm --filter @nf-price-tracker/backend dev",
-    "start": "pnpm --filter @nf-price-tracker/backend start",
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck"
   }

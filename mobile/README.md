@@ -9,7 +9,9 @@ you host yourself, over the same `/api` the web front end uses.
 ```bash
 cd mobile
 pnpm install
-pnpm start        # Metro; press i / a, or scan the QR code with Expo Go
+pnpm ios          # debug build on the iOS simulator, then Metro
+pnpm android      # the same on the Android emulator
+pnpm ios:device   # release build on a connected iPhone; asks which device
 ```
 
 ```bash
@@ -17,13 +19,17 @@ pnpm test         # pure helpers, under node --test
 pnpm typecheck
 ```
 
-The phone and the backend have to be on the same network — Expo Go loads the
-JS bundle from this machine, and the app then calls your server directly.
+A debug build has no JS in it: it loads the bundle from Metro on this machine
+at every launch, and fails with "No script URL provided" when Metro is not
+running or the device cannot reach it. `ios:device` is a release build, with
+the bundle embedded, so the phone runs it on its own; it only needs to reach
+your server. Signed with a free Apple ID, that install stops opening after
+7 days and has to be built again.
 
-Building installable binaries is out of scope here: that is
-[EAS Build](https://docs.expo.dev/build/introduction/) (`npx eas build -p ios`),
-or `npx expo prebuild` if you would rather drive Xcode and Gradle yourself. Both
-generate `ios/` and `android/` folders, which are git-ignored on purpose.
+The first run generates `ios/` and `android/` through `expo prebuild`; both are
+git-ignored on purpose, since `app.json` is what they are generated from.
+[EAS Build](https://docs.expo.dev/build/introduction/) (`npx eas build -p ios`)
+is the way to binaries you can hand to someone else.
 
 ## What it does
 
