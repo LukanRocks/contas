@@ -2,6 +2,7 @@ import { useNavigation } from "@react-navigation/native";
 import { ScrollView, StyleSheet, Text } from "react-native";
 import { useBackend } from "../backend";
 import { ServerForm } from "../components/ServerForm";
+import { useStrings } from "../i18n";
 import { useTheme } from "../theme";
 
 /**
@@ -11,6 +12,7 @@ import { useTheme } from "../theme";
  */
 export function ServerScreen() {
   const theme = useTheme();
+  const t = useStrings();
   const { baseUrl, name, setServer } = useBackend();
   const navigation = useNavigation();
 
@@ -23,14 +25,14 @@ export function ServerScreen() {
     >
       <ServerForm
         current={{ baseUrl, name }}
-        submitLabel="Salvar"
+        submitLabel={t.server.save}
         onSaved={(next) => {
           setServer(next);
           navigation.goBack();
         }}
       />
       <Text style={[styles.footnote, { color: theme.muted }]}>
-        O endereço atual continua valendo até o novo responder.
+        {t.server.currentStaysUntilNewAnswers}
       </Text>
     </ScrollView>
   );

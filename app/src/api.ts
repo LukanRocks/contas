@@ -1,3 +1,4 @@
+import type { Strings } from "./i18n/strings";
 import type { IngestPayload } from "./scan";
 import type { NoteListResponse, ParsedNote } from "./types";
 
@@ -11,9 +12,24 @@ const TIMEOUT_MS = 10_000;
  */
 const INGEST_TIMEOUT_MS = 45_000;
 
-/** Every failure the screens show the user arrives as one of these. */
+/**
+ * Every failure the screens show the user arrives as one of these. It carries
+ * how to say itself rather than the words: what is thrown here may be rendered
+ * in either language, and the language can change between the two moments.
+ */
 export class ApiError extends Error {
   override name = "ApiError";
+
+  /** The failure in the language in force where it is shown. */
+  readonly describe: (t: Strings) => string;
+
+  constructor(describe: (t: Strings) => string) {
+    // `message` stays a bare marker: the readable text is `describe(t)`, and
+    // resolving it here would mean this module holding a copy of the words --
+    // in one language, chosen before anyone knows which one is in force.
+    super("ApiError");
+    this.describe = describe;
+  }
 }
 
 /**
@@ -28,7 +44,7 @@ export class ApiError extends Error {
  */
 export function normalizeBaseUrl(input: string): string {
   const trimmed = input.trim();
-  if (!trimmed) throw new ApiError("Informe o endereço do servidor.");
+  if (!trimmed) throw new ApiError((t) => t.errors.addressRequired);
 
   const hasScheme = /^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed);
   const withScheme = hasScheme ? trimmed : `${looksLocal(trimmed) ? "http" : "https"}://${trimmed}`;
@@ -37,14 +53,14 @@ export function normalizeBaseUrl(input: string): string {
   try {
     url = new URL(withScheme);
   } catch {
-    throw new ApiError("Endereço inválido. Exemplo: 192.168.1.10:3000");
+    throw new ApiError((t) => t.errors.addressInvalid);
   }
 
   if (url.protocol !== "http:" && url.protocol !== "https:") {
-    throw new ApiError("O endereço precisa começar com http:// ou https://");
+    throw new ApiError((t) => t.errors.addressScheme);
   }
   if (!url.hostname) {
-    throw new ApiError("Endereço inválido. Exemplo: 192.168.1.10:3000");
+    throw new ApiError((t) => t.errors.addressInvalid);
   }
 
   // Pasting the API root instead of the origin is an easy mistake to make, and
@@ -76,13 +92,11 @@ export async function checkBackend(baseUrl: string): Promise<void> {
   if (status === "ok") return;
 
   if (status === "error") {
-    const message = isRecord(body) && typeof body["message"] === "string" ? body["message"] : "";
-    throw new ApiError(
-      `O servidor respondeu, mas não está saudável${message ? `: ${message}` : "."}`,
-    );
+    const detail = isRecord(body) ? asString(body["message"]) : null;
+    throw new ApiError((t) => t.errors.unhealthy(detail));
   }
 
-  throw new ApiError("Esse endereço respondeu, mas não parece ser um servidor nf-price-tracker.");
+  throw new ApiError((t) => t.errors.notOurBackend);
 }
 
 /** Notes for the home screen, newest emission first — same order as the web list. */
@@ -90,7 +104,7 @@ export async function listNotes(baseUrl: string, limit = 200): Promise<NoteListR
   const body = await getJson(`${baseUrl}/api/nfce?limit=${limit}`, { expectedStatuses: [200] });
 
   if (!isRecord(body) || !Array.isArray(body["notes"])) {
-    throw new ApiError("Resposta inesperada do servidor ao listar as notas.");
+    throw new ApiError((t) => t.errors.unexpectedList);
   }
   return body as NoteListResponse;
 }
@@ -113,7 +127,7 @@ export async function ingestNote(baseUrl: string, payload: IngestPayload): Promi
   if (status !== 200) throw new ApiError(ingestFailure(status, body));
 
   if (!isRecord(body) || typeof body["chave"] !== "string") {
-    throw new ApiError("O servidor respondeu, mas não devolveu a nota.");
+    throw new ApiError((t) => t.errors.noteMissing);
   }
   return body as unknown as ParsedNote;
 }
@@ -122,25 +136,25 @@ export async function ingestNote(baseUrl: string, payload: IngestPayload): Promi
  * The ingest endpoint names what went wrong; these are those names said in a
  * way that means something to someone holding a receipt.
  */
-function ingestFailure(status: number, body: unknown): string {
+function ingestFailure(status: number, body: unknown): (t: Strings) => string {
   const code = isRecord(body) ? asString(body["error"]) : null;
   const uf = isRecord(body) ? asString(body["uf"]) : null;
 
   switch (code) {
     case "invalid_chave":
     case "invalid_body":
-      return "Esse QR code não é de uma nota fiscal.";
+      return (t) => t.errors.notANote;
     case "unsupported_uf":
-      return `O servidor ainda não lê notas desse estado (UF ${uf ?? "?"}) — por enquanto só Paraná.`;
+      return (t) => t.errors.unsupportedUf(uf ?? "?");
     case "fetch_failed":
-      return "O servidor não conseguiu abrir a nota no portal da Sefaz. Tente de novo em instantes.";
+      return (t) => t.errors.fetchFailed;
     case "parse_failed":
-      return "O servidor abriu a nota no portal, mas não conseguiu ler o conteúdo dela.";
+      return (t) => t.errors.parseFailed;
     case "store_failed":
-      return "O servidor leu a nota, mas não conseguiu salvá-la.";
+      return (t) => t.errors.storeFailed;
     default: {
       const detail = isRecord(body) ? (asString(body["message"]) ?? code) : null;
-      return `O servidor respondeu ${status}${detail ? ` — ${detail}` : "."}`;
+      return (t) => t.errors.serverSaid(status, detail);
     }
   }
 }
@@ -161,8 +175,8 @@ async function getJson(url: string, { expectedStatuses }: GetOptions): Promise<u
     const detail =
       (isRecord(body) && (asString(body["message"]) ?? asString(body["error"]))) ||
       text.slice(0, 120) ||
-      "sem detalhes";
-    throw new ApiError(`O servidor respondeu ${status} — ${detail}`);
+      null;
+    throw new ApiError((t) => t.errors.serverSaid(status, detail));
   }
 
   return body;
@@ -198,12 +212,10 @@ async function send(
     });
   } catch (err) {
     if (controller.signal.aborted) {
-      throw new ApiError(`O servidor não respondeu em ${timeoutMs / 1000}s.`);
+      throw new ApiError((t) => t.errors.timeout(timeoutMs / 1000));
     }
-    const message = err instanceof Error ? err.message : String(err);
-    throw new ApiError(
-      `Não foi possível falar com o servidor. Confira o endereço e se o aparelho está na mesma rede (${message}).`,
-    );
+    const detail = err instanceof Error ? err.message : String(err);
+    throw new ApiError((t) => t.errors.unreachable(detail));
   } finally {
     clearTimeout(timer);
   }
@@ -214,9 +226,7 @@ async function send(
     parsed = text ? JSON.parse(text) : null;
   } catch {
     // A login portal or a reverse proxy answering HTML — not our API.
-    if (res.ok) {
-      throw new ApiError("Esse endereço respondeu, mas não parece ser um servidor nf-price-tracker.");
-    }
+    if (res.ok) throw new ApiError((t) => t.errors.notOurBackend);
   }
 
   return { status: res.status, body: parsed, text };

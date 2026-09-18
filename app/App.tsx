@@ -11,14 +11,25 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import House from "lucide-react-native/icons/house";
 import ScanQrCode from "lucide-react-native/icons/scan-qr-code";
 import Settings from "lucide-react-native/icons/settings";
+import { useLocales } from "expo-localization";
 import { BackendContext } from "./src/backend";
+import { I18nContext, useStrings } from "./src/i18n";
+import { resolveLanguage } from "./src/i18n/language";
+import type { LanguageSetting } from "./src/i18n/language";
+import { BUNDLES } from "./src/i18n/strings";
 import type { SettingsStackParamList, TabParamList } from "./src/navigation";
 import { HomeScreen } from "./src/screens/HomeScreen";
 import { OnboardingScreen } from "./src/screens/OnboardingScreen";
 import { ScanScreen } from "./src/screens/ScanScreen";
+import { LanguageScreen } from "./src/screens/LanguageScreen";
 import { ServerScreen } from "./src/screens/ServerScreen";
 import { SettingsScreen } from "./src/screens/SettingsScreen";
-import { loadServer, saveServer } from "./src/storage";
+import {
+  loadLanguageSetting,
+  loadServer,
+  saveLanguageSetting,
+  saveServer,
+} from "./src/storage";
 import type { Server } from "./src/storage";
 import { useTheme } from "./src/theme";
 import type { Theme } from "./src/theme";
@@ -41,19 +52,39 @@ function App() {
   const theme = useTheme();
   const navigationTheme = useMemo(() => toNavigationTheme(theme), [theme]);
   const [boot, setBoot] = useState<Boot>({ status: "loading" });
+  const [languageSetting, setLanguageSetting] = useState<LanguageSetting>("system");
+
+  // The device's own preference order, and it updates if the phone's language
+  // is changed while the app is open.
+  const locales = useLocales();
 
   // One read of the device's store, on launch. Nothing is rendered before it
-  // answers, so a returning user never sees onboarding flash by.
+  // answers, so a returning user never sees onboarding flash by -- or the app
+  // in a language they turned off.
   useEffect(() => {
     let cancelled = false;
-    void loadServer().then((saved) => {
+    void Promise.all([loadServer(), loadLanguageSetting()]).then(([saved, language]) => {
       if (cancelled) return;
+      setLanguageSetting(language);
       setBoot(saved ? { status: "ready", server: saved } : { status: "onboarding" });
     });
     return () => {
       cancelled = true;
     };
   }, []);
+
+  const setLanguage = useCallback((next: LanguageSetting) => {
+    setLanguageSetting(next);
+    void saveLanguageSetting(next);
+  }, []);
+
+  const i18n = useMemo(() => {
+    const language = resolveLanguage(
+      languageSetting,
+      locales.map((locale) => locale.languageTag),
+    );
+    return { t: BUNDLES[language], setting: languageSetting, language, setLanguage };
+  }, [languageSetting, locales, setLanguage]);
 
   // From onboarding and from Ajustes › Servidor. A new address has always
   // just answered /api/health; an unchanged one is only being renamed.
@@ -68,27 +99,30 @@ function App() {
   );
 
   return (
-    <View style={[styles.flex, { backgroundColor: theme.bg }]}>
-      <StatusBar style={theme.dark ? "light" : "dark"} />
-      {boot.status === "loading" ? (
-        <View style={styles.center}>
-          <ActivityIndicator color={theme.accent} />
-        </View>
-      ) : !backend ? (
-        <OnboardingScreen onConnected={setServer} />
-      ) : (
-        <BackendContext value={backend}>
-          <NavigationContainer theme={navigationTheme}>
-            <Tabs />
-          </NavigationContainer>
-        </BackendContext>
-      )}
-    </View>
+    <I18nContext value={i18n}>
+      <View style={[styles.flex, { backgroundColor: theme.bg }]}>
+        <StatusBar style={theme.dark ? "light" : "dark"} />
+        {boot.status === "loading" ? (
+          <View style={styles.center}>
+            <ActivityIndicator color={theme.accent} />
+          </View>
+        ) : !backend ? (
+          <OnboardingScreen onConnected={setServer} />
+        ) : (
+          <BackendContext value={backend}>
+            <NavigationContainer theme={navigationTheme}>
+              <Tabs />
+            </NavigationContainer>
+          </BackendContext>
+        )}
+      </View>
+    </I18nContext>
   );
 }
 
 function Tabs() {
   const theme = useTheme();
+  const t = useStrings();
 
   return (
     <Tab.Navigator
@@ -100,7 +134,7 @@ function Tabs() {
         name="Scan"
         component={ScanScreen}
         options={{
-          title: "Escanear",
+          title: t.tabs.scan,
           tabBarIcon: ({ focused, color, size }) => (
             <ScanQrCode color={color} size={size} strokeWidth={focused ? 2.5 : 2} />
           ),
@@ -110,7 +144,7 @@ function Tabs() {
         name="Home"
         component={HomeScreen}
         options={{
-          title: "Início",
+          title: t.tabs.home,
           tabBarIcon: ({ focused, color, size }) => (
             <House color={color} size={size} strokeWidth={focused ? 2.5 : 2} />
           ),
@@ -120,7 +154,7 @@ function Tabs() {
         name="Settings"
         component={SettingsNavigator}
         options={{
-          title: "Ajustes",
+          title: t.tabs.settings,
           tabBarIcon: ({ focused, color, size }) => (
             <Settings color={color} size={size} strokeWidth={focused ? 2.5 : 2} />
           ),
@@ -132,14 +166,25 @@ function Tabs() {
 
 /** A stack so each option opens as its own screen, with a back button and swipe. */
 function SettingsNavigator() {
+  const t = useStrings();
+
   return (
     <SettingsStack.Navigator>
       <SettingsStack.Screen
         name="SettingsHome"
         component={SettingsScreen}
-        options={{ title: "Ajustes", headerShown: false }}
+        options={{ title: t.settings.title, headerShown: false }}
       />
-      <SettingsStack.Screen name="Server" component={ServerScreen} options={{ title: "Servidor" }} />
+      <SettingsStack.Screen
+        name="Server"
+        component={ServerScreen}
+        options={{ title: t.server.screenTitle }}
+      />
+      <SettingsStack.Screen
+        name="Language"
+        component={LanguageScreen}
+        options={{ title: t.language.screenTitle }}
+      />
     </SettingsStack.Navigator>
   );
 }

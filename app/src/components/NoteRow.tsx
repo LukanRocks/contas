@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
 import { brl, chaveShort, dateTime, plural } from "../format";
+import { useStrings } from "../i18n";
 import { useTheme } from "../theme";
 import type { NoteSummary } from "../types";
 
@@ -10,6 +11,7 @@ import type { NoteSummary } from "../types";
  */
 export function NoteRow({ note }: { note: NoteSummary }) {
   const theme = useTheme();
+  const t = useStrings();
   // What the shopper actually paid, when the note says so; the items total otherwise.
   const total = brl(note.payable_c ?? note.total_value_c) ?? "—";
 
@@ -17,10 +19,11 @@ export function NoteRow({ note }: { note: NoteSummary }) {
     <View style={[styles.row, { backgroundColor: theme.surface, borderColor: theme.border }]}>
       <View style={styles.main}>
         <Text style={[styles.store, { color: theme.text }]} numberOfLines={2}>
-          {note.emit_name ?? "Estabelecimento não identificado"}
+          {note.emit_name ?? t.home.unknownStore}
         </Text>
         <Text style={[styles.meta, { color: theme.muted }]} numberOfLines={1}>
-          {dateTime(note.emitted_at) ?? "Sem data de emissão"} · {plural(note.item_count, "item", "itens")}
+          {dateTime(note.emitted_at, t) ?? t.home.noEmissionDate} ·{" "}
+          {plural(note.item_count, t.units.item, t.units.items)}
         </Text>
         <Text style={[styles.chave, { color: theme.muted }]} numberOfLines={1}>
           {chaveShort(note.chave)}

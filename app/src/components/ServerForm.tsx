@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { ApiError, checkBackend, normalizeBaseUrl } from "../api";
-import { DEFAULT_SERVER_NAME } from "../backend";
+import { useStrings } from "../i18n";
 import type { Server } from "../storage";
 import { useTheme } from "../theme";
 
@@ -20,6 +20,7 @@ type Props = {
  */
 export function ServerForm({ current, submitLabel, onSaved }: Props) {
   const theme = useTheme();
+  const t = useStrings();
   const urlInput = useRef<TextInput>(null);
   const [name, setName] = useState(current?.name ?? "");
   const [value, setValue] = useState(current?.baseUrl ?? "");
@@ -35,10 +36,10 @@ export function ServerForm({ current, submitLabel, onSaved }: Props) {
     normalized = null;
   }
   const hint = !normalized
-    ? "http:// e https:// são aceitos."
+    ? t.server.schemesAccepted
     : normalized === current?.baseUrl
-      ? "É o endereço em uso."
-      : `Vamos testar ${normalized}/api/health`;
+      ? t.server.addressInUse
+      : t.server.willTest(`${normalized}/api/health`);
 
   async function submit() {
     if (checking) return;
@@ -48,7 +49,7 @@ export function ServerForm({ current, submitLabel, onSaved }: Props) {
     try {
       baseUrl = normalizeBaseUrl(value);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : String(err));
+      setError(err instanceof ApiError ? err.describe(t) : t.errors.unexpected(String(err)));
       return;
     }
 
@@ -59,7 +60,7 @@ export function ServerForm({ current, submitLabel, onSaved }: Props) {
       if (baseUrl !== current?.baseUrl) await checkBackend(baseUrl);
       onSaved({ baseUrl, name: name.trim() || null });
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : `Falha inesperada: ${String(err)}`);
+      setError(err instanceof ApiError ? err.describe(t) : t.errors.unexpected(String(err)));
     } finally {
       setChecking(false);
     }
@@ -74,13 +75,13 @@ export function ServerForm({ current, submitLabel, onSaved }: Props) {
     <View style={[styles.panel, { backgroundColor: theme.surface, borderColor: theme.border }]}>
       {current ? (
         <View style={styles.field}>
-          <Text style={[styles.label, { color: theme.text }]}>Nome</Text>
+          <Text style={[styles.label, { color: theme.text }]}>{t.server.nameLabel}</Text>
           <TextInput
             value={name}
             onChangeText={setName}
             onSubmitEditing={() => urlInput.current?.focus()}
             editable={!checking}
-            placeholder={DEFAULT_SERVER_NAME}
+            placeholder={t.server.defaultName}
             placeholderTextColor={theme.muted}
             maxLength={40}
             returnKeyType="next"
@@ -90,7 +91,7 @@ export function ServerForm({ current, submitLabel, onSaved }: Props) {
         </View>
       ) : null}
 
-      <Text style={[styles.label, { color: theme.text }]}>Endereço do servidor</Text>
+      <Text style={[styles.label, { color: theme.text }]}>{t.server.addressLabel}</Text>
 
       <TextInput
         ref={urlInput}
@@ -101,7 +102,7 @@ export function ServerForm({ current, submitLabel, onSaved }: Props) {
         }}
         onSubmitEditing={submit}
         editable={!checking}
-        placeholder="192.168.1.10:3000"
+        placeholder={t.server.addressPlaceholder}
         placeholderTextColor={theme.muted}
         autoCapitalize="none"
         autoCorrect={false}

@@ -15,6 +15,7 @@ import { useBackend } from "../backend";
 import { NoteRow } from "../components/NoteRow";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { hostLabel, plural } from "../format";
+import { useStrings } from "../i18n";
 import type { TabParamList } from "../navigation";
 import { useTheme } from "../theme";
 import type { NoteSummary } from "../types";
@@ -27,6 +28,7 @@ type State =
 /** Every note the backend has, newest emission first — the same order as the web list. */
 export function HomeScreen() {
   const theme = useTheme();
+  const t = useStrings();
   const { baseUrl } = useBackend();
   const navigation = useNavigation<BottomTabNavigationProp<TabParamList, "Home">>();
   const [state, setState] = useState<State>({ status: "loading" });
@@ -47,13 +49,13 @@ export function HomeScreen() {
         if (mode === "quiet") return;
         setState({
           status: "error",
-          message: err instanceof ApiError ? err.message : `Falha inesperada: ${String(err)}`,
+          message: err instanceof ApiError ? err.describe(t) : t.errors.unexpected(String(err)),
         });
       } finally {
         if (mode === "refresh") setRefreshing(false);
       }
     },
-    [baseUrl],
+    [baseUrl, t],
   );
 
   // Reloaded whenever the tab comes into focus, so a note just scanned on
@@ -67,7 +69,8 @@ export function HomeScreen() {
     }, [load, baseUrl]),
   );
 
-  const count = state.status === "ready" ? plural(state.total, "nota", "notas") : null;
+  const count =
+    state.status === "ready" ? plural(state.total, t.units.note, t.units.notes) : null;
 
   // `initial: false` keeps Ajustes underneath, so back lands there rather than
   // on an empty stack when the Settings tab has not been opened yet.
@@ -77,14 +80,14 @@ export function HomeScreen() {
   return (
     <View style={[styles.flex, { backgroundColor: theme.bg }]}>
       <ScreenHeader
-        title="Notas escaneadas"
+        title={t.home.title}
         subtitle={`${count ? `${count} · ` : ""}${hostLabel(baseUrl)}`}
       />
 
       {state.status === "loading" ? (
         <View style={styles.center}>
           <ActivityIndicator color={theme.accent} />
-          <Text style={[styles.centerText, { color: theme.muted }]}>Carregando…</Text>
+          <Text style={[styles.centerText, { color: theme.muted }]}>{t.home.loading}</Text>
         </View>
       ) : state.status === "error" ? (
         <View style={styles.center}>
@@ -99,10 +102,10 @@ export function HomeScreen() {
               { backgroundColor: theme.accent, opacity: pressed ? 0.85 : 1 },
             ]}
           >
-            <Text style={[styles.buttonText, { color: theme.accentText }]}>Tentar de novo</Text>
+            <Text style={[styles.buttonText, { color: theme.accentText }]}>{t.home.retry}</Text>
           </Pressable>
           <Pressable onPress={changeServer} accessibilityRole="button" hitSlop={8}>
-            <Text style={[styles.linkText, { color: theme.accent }]}>Trocar de servidor</Text>
+            <Text style={[styles.linkText, { color: theme.accent }]}>{t.home.changeServer}</Text>
           </Pressable>
         </View>
       ) : (
@@ -120,10 +123,8 @@ export function HomeScreen() {
           }
           ListEmptyComponent={
             <View style={styles.center}>
-              <Text style={[styles.emptyTitle, { color: theme.text }]}>Nenhuma nota ainda</Text>
-              <Text style={[styles.centerText, { color: theme.muted }]}>
-                Escaneie o QR code de uma NFC-e na aba Escanear e ela aparece aqui.
-              </Text>
+              <Text style={[styles.emptyTitle, { color: theme.text }]}>{t.home.emptyTitle}</Text>
+              <Text style={[styles.centerText, { color: theme.muted }]}>{t.home.emptyBody}</Text>
             </View>
           }
         />

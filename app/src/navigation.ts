@@ -4,6 +4,7 @@ import type { NavigatorScreenParams } from "@react-navigation/native";
 export type SettingsStackParamList = {
   SettingsHome: undefined;
   Server: undefined;
+  Language: undefined;
 };
 
 /** The tab bar — what the app is once a server is known. */

@@ -15,6 +15,8 @@ import { ApiError, ingestNote } from "../api";
 import { useBackend } from "../backend";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { brl, plural } from "../format";
+import { useStrings } from "../i18n";
+import type { Strings } from "../i18n";
 import type { TabParamList } from "../navigation";
 import { classifyScan } from "../scan";
 import { useTheme } from "../theme";
@@ -23,7 +25,7 @@ import type { ParsedNote } from "../types";
 type Outcome =
   | { kind: "added"; note: ParsedNote }
   | { kind: "rejected" }
-  | { kind: "failed"; message: string };
+  | { kind: "failed"; message: (t: Strings) => string };
 
 /**
  * Point the camera at a note's QR code and it is ingested: the server fetches
@@ -33,6 +35,7 @@ type Outcome =
  */
 export function ScanScreen() {
   const theme = useTheme();
+  const t = useStrings();
   const { baseUrl } = useBackend();
   const navigation = useNavigation<BottomTabNavigationProp<TabParamList, "Scan">>();
   const isFocused = useIsFocused();
@@ -63,7 +66,9 @@ export function ScanScreen() {
       } catch (err) {
         setOutcome({
           kind: "failed",
-          message: err instanceof ApiError ? err.message : `Falha inesperada: ${String(err)}`,
+          // Kept as the failure, not as words: the language can change between
+          // the scan and the moment this is read.
+          message: err instanceof ApiError ? err.describe : (s: Strings) => s.errors.unexpected(String(err)),
         });
       } finally {
         setBusy(false);
@@ -79,7 +84,7 @@ export function ScanScreen() {
 
   return (
     <View style={[styles.flex, { backgroundColor: theme.bg }]}>
-      <ScreenHeader title="Escanear nota" subtitle="Aponte para o QR code da NFC-e" />
+      <ScreenHeader title={t.scan.title} subtitle={t.scan.subtitle} />
 
       {!permission ? (
         // The permission state is still being read from the OS.
@@ -116,7 +121,7 @@ export function ScanScreen() {
             <View style={[styles.frame, { borderColor: busy ? theme.accent : "#ffffff" }]} />
             <View style={styles.caption}>
               <Text style={styles.captionText}>
-                {busy ? "Consultando a nota no portal…" : "Aponte para o QR code da nota"}
+                {busy ? t.scan.consulting : t.scan.pointAtCode}
               </Text>
               {busy ? <ActivityIndicator color="#ffffff" /> : null}
             </View>
@@ -130,14 +135,13 @@ export function ScanScreen() {
 /** Nothing can be scanned without the camera, so this is the whole screen until it is granted. */
 function PermissionGate({ canAsk, onAsk }: { canAsk: boolean; onAsk: () => void }) {
   const theme = useTheme();
+  const t = useStrings();
 
   return (
     <View style={styles.center}>
-      <Text style={[styles.title, { color: theme.text }]}>Acesso à câmera</Text>
+      <Text style={[styles.title, { color: theme.text }]}>{t.scan.permissionTitle}</Text>
       <Text style={[styles.body, { color: theme.muted }]}>
-        {canAsk
-          ? "O app usa a câmera para ler o QR code impresso na nota. Nada é gravado: o código é lido e enviado ao seu servidor."
-          : "A permissão está negada. Libere a câmera para o app nos ajustes do aparelho para escanear notas."}
+        {canAsk ? t.scan.permissionWhy : t.scan.permissionDenied}
       </Text>
       <Pressable
         onPress={canAsk ? onAsk : () => void Linking.openSettings()}
@@ -148,7 +152,7 @@ function PermissionGate({ canAsk, onAsk }: { canAsk: boolean; onAsk: () => void 
         ]}
       >
         <Text style={[styles.buttonText, { color: theme.accentText }]}>
-          {canAsk ? "Permitir câmera" : "Abrir ajustes"}
+          {canAsk ? t.scan.allowCamera : t.scan.openSettings}
         </Text>
       </Pressable>
     </View>
@@ -166,26 +170,25 @@ function OutcomeView({
   onSeeNotes: () => void;
 }) {
   const theme = useTheme();
+  const t = useStrings();
 
   return (
     <View style={styles.center}>
       {outcome.kind === "added" ? (
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-          <Text style={[styles.added, { color: theme.okText }]}>Nota adicionada</Text>
+          <Text style={[styles.added, { color: theme.okText }]}>{t.scan.noteAdded}</Text>
           <Text style={[styles.store, { color: theme.text }]}>
-            {outcome.note.emit_name ?? "Estabelecimento não identificado"}
+            {outcome.note.emit_name ?? t.home.unknownStore}
           </Text>
           <Text style={[styles.body, { color: theme.muted }]}>
-            {brl(outcome.note.payable_c ?? outcome.note.total_value_c) ?? "Total não informado"} ·{" "}
-            {plural(outcome.note.items.length, "item", "itens")}
+            {brl(outcome.note.payable_c ?? outcome.note.total_value_c) ?? t.scan.totalUnknown} ·{" "}
+            {plural(outcome.note.items.length, t.units.item, t.units.items)}
           </Text>
         </View>
       ) : (
         <View style={[styles.errorBox, { backgroundColor: theme.errBg }]}>
           <Text style={[styles.errorText, { color: theme.errText }]}>
-            {outcome.kind === "rejected"
-              ? "Esse QR code não é de uma nota fiscal."
-              : outcome.message}
+            {outcome.kind === "rejected" ? t.scan.notANote : outcome.message(t)}
           </Text>
         </View>
       )}
@@ -198,12 +201,12 @@ function OutcomeView({
           { backgroundColor: theme.accent, opacity: pressed ? 0.85 : 1 },
         ]}
       >
-        <Text style={[styles.buttonText, { color: theme.accentText }]}>Escanear outra</Text>
+        <Text style={[styles.buttonText, { color: theme.accentText }]}>{t.scan.scanAnother}</Text>
       </Pressable>
 
       {outcome.kind === "added" ? (
         <Pressable onPress={onSeeNotes} accessibilityRole="button" hitSlop={8}>
-          <Text style={[styles.linkText, { color: theme.accent }]}>Ver as notas</Text>
+          <Text style={[styles.linkText, { color: theme.accent }]}>{t.scan.seeNotes}</Text>
         </Pressable>
       ) : null}
     </View>

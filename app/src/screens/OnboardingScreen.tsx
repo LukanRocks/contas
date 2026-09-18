@@ -1,6 +1,7 @@
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ServerForm } from "../components/ServerForm";
+import { useStrings } from "../i18n";
 import type { Server } from "../storage";
 import { useTheme } from "../theme";
 
@@ -15,6 +16,7 @@ type Props = {
  */
 export function OnboardingScreen({ onConnected }: Props) {
   const theme = useTheme();
+  const t = useStrings();
   const insets = useSafeAreaInsets();
 
   return (
@@ -30,15 +32,11 @@ export function OnboardingScreen({ onConnected }: Props) {
         keyboardShouldPersistTaps="handled"
       >
         <Text style={[styles.title, { color: theme.text }]}>nf-price-tracker</Text>
-        <Text style={[styles.subtitle, { color: theme.muted }]}>
-          Suas notas ficam no seu servidor. Informe o endereço dele para começar.
-        </Text>
+        <Text style={[styles.subtitle, { color: theme.muted }]}>{t.onboarding.subtitle}</Text>
 
-        <ServerForm submitLabel="Continuar" onSaved={onConnected} />
+        <ServerForm submitLabel={t.onboarding.submit} onSaved={onConnected} />
 
-        <Text style={[styles.footnote, { color: theme.muted }]}>
-          O endereço fica salvo no aparelho: nas próximas aberturas o app vai direto para as notas.
-        </Text>
+        <Text style={[styles.footnote, { color: theme.muted }]}>{t.onboarding.footnote}</Text>
       </ScrollView>
     </KeyboardAvoidingView>
   );

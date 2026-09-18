@@ -1,3 +1,5 @@
+import type { Strings } from "./i18n";
+
 /**
  * Money arrives as integer cents and dates as the strings the parser stored.
  * Both are formatted by hand rather than through `toLocaleString("pt-BR")`:
@@ -13,13 +15,17 @@ export function brl(cents: number | null | undefined): string | null {
   return `${cents < 0 ? "-" : ""}R$ ${reais},${digits.slice(-2)}`;
 }
 
-/** "2026-09-02T19:12:34" -> "02/09/2026 19:12" (already local time). */
-export function dateTime(iso: string | null | undefined): string | null {
+/**
+ * "2026-09-02T19:12:34" -> "02/09/2026 19:12" in pt, "2 Sep 2026 19:12" in en
+ * (the stored value is already local time). Putting the parts in order is the
+ * language's job: all-digit dates mean different days in different places.
+ */
+export function dateTime(iso: string | null | undefined, t: Strings): string | null {
   if (!iso) return null;
   const m = /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?/.exec(iso);
-  if (!m) return iso;
-  const [, y, mo, d, hh, mi] = m;
-  return hh ? `${d}/${mo}/${y} ${hh}:${mi}` : `${d}/${mo}/${y}`;
+  if (!m || !m[1] || !m[2] || !m[3]) return iso;
+  const [, year, month, day, hh, mi] = m;
+  return t.formatDateTime({ year, month, day, time: hh && mi ? `${hh}:${mi}` : null });
 }
 
 /** A chave is 44 digits — far too wide for a phone, so show both ends. */

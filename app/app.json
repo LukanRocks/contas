@@ -15,7 +15,7 @@
         "NSAppTransportSecurity": {
           "NSAllowsLocalNetworking": true
         },
-        "NSLocalNetworkUsageDescription": "O app precisa falar com o servidor nf-price-tracker na sua rede local."
+        "NSLocalNetworkUsageDescription": "The app needs to reach your nf-price-tracker server on your local network."
       }
     },
     "android": {
@@ -40,13 +40,17 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "O app usa a câmera para ler o QR code das notas fiscais.",
+          "cameraPermission": "The app uses the camera to read the QR code on your fiscal notes.",
           "recordAudioAndroid": false
         }
       ]
     ],
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "locales": {
+      "en": "./locales/en.json",
+      "pt": "./locales/pt.json"
     }
   }
 }

@@ -1,4 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { isLanguageSetting } from "./i18n/language";
+import type { LanguageSetting } from "./i18n/language";
 
 /**
  * Where the backend lives is the whole of this app's setup, and it is not a
@@ -6,10 +8,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
  */
 const URL_KEY = "nf-price-tracker:backend-url";
 const NAME_KEY = "nf-price-tracker:backend-name";
+const LANGUAGE_KEY = "nf-price-tracker:language";
 
 export type Server = {
   baseUrl: string;
-  /** Set in Ajustes › Servidor; `null` until then, which reads as "Servidor". */
+  /** Set in Ajustes › Servidor; `null` until then, and shown as the default name. */
   name: string | null;
 };
 
@@ -36,5 +39,28 @@ export async function saveServer({ baseUrl, name }: Server): Promise<void> {
   } catch (err) {
     // Worst case the user onboards again next launch; never block the app.
     console.warn("[storage] could not save the server", err);
+  }
+}
+
+/**
+ * "system" on a first run -- and whenever the stored value is missing, damaged
+ * or from a build that spoke a language this one does not.
+ */
+export async function loadLanguageSetting(): Promise<LanguageSetting> {
+  try {
+    const stored = await AsyncStorage.getItem(LANGUAGE_KEY);
+    return isLanguageSetting(stored) ? stored : "system";
+  } catch (err) {
+    console.warn("[storage] could not read the language setting", err);
+    return "system";
+  }
+}
+
+export async function saveLanguageSetting(setting: LanguageSetting): Promise<void> {
+  try {
+    await AsyncStorage.setItem(LANGUAGE_KEY, setting);
+  } catch (err) {
+    // The app keeps the choice for this run either way; only persistence is lost.
+    console.warn("[storage] could not save the language setting", err);
   }
 }
