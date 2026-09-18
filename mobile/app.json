@@ -41,6 +41,7 @@
         "expo-camera",
         {
           "cameraPermission": "The app uses the camera to read the QR code on your fiscal notes.",
+          "microphonePermission": false,
           "recordAudioAndroid": false
         }
       ]
