@@ -38,12 +38,6 @@ The database lives at the workspace root — `data/contas.db`, beside the apps
 rather than inside one of them. The default is resolved from the package
 itself, so it lands there however you launch the server. `data/` is gitignored.
 
-This project was called nf-price-tracker until the rename, so a server older
-than that keeps its notes in `data/nf-price-tracker.db`. The first start after
-upgrading renames that file — WAL sidecars included — to `data/contas.db` and
-says so in the log. `DATABASE_PATH` skips all of it: the file you name is the
-file you get.
-
 This server hosts both halves of the app on one origin:
 
 - `/` — the [`@contas/web`](../web/README.md) front end (static files,
