@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Android adaptive-icon foreground: transparent, the mark scaled 0.8x so both
+     dots land inside the 61.1% safe circle. See README.md. -->
+<svg width="1000" height="1000" viewBox="0 0 1000 1000" version="1.1"
+     xmlns="http://www.w3.org/2000/svg"
+     style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;">
+    <g transform="translate(500,500) scale(0.8) translate(-500,-500)">
+        <g transform="matrix(21.815972,0,0,15.601686,-198.111105,0.746038)">
+            <path d="M18,32C18,14 46,14 46,32" style="fill:none;fill-rule:nonzero;stroke:rgb(194,247,74);stroke-width:2.2px;"/>
+        </g>
+        <g transform="matrix(21.958829,0,0,15.601686,-202.682533,0.746038)">
+            <path d="M46,32C46,50 18,50 18,32" style="fill:none;fill-rule:nonzero;stroke:white;stroke-width:2.2px;"/>
+        </g>
+        <g transform="matrix(15.601686,0,0,15.601686,0.746038,0.746038)">
+            <circle cx="13" cy="32" r="5.5" style="fill:rgb(194,247,74);"/>
+        </g>
+        <g transform="matrix(15.601686,0,0,15.601686,0.746038,0.746038)">
+            <circle cx="51" cy="32" r="5.5" style="fill:white;"/>
+        </g>
+    </g>
+</svg>

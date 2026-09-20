@@ -38,9 +38,13 @@ survive a refresh.
 
 ```
 public/
-  index.html    page shell
-  styles.css    light/dark via prefers-color-scheme
-  app.js        routing, rendering, formatting
+  index.html            page shell
+  styles.css            light/dark via prefers-color-scheme
+  app.js                routing, rendering, formatting
+  favicon.svg           the logo, for browsers that take an SVG icon
+  favicon-32.png        raster fallbacks for those that do not
+  favicon-16.png
+  apple-touch-icon.png  what iOS uses when the page is saved to the home screen
 ```
 
 ## Notes
