@@ -1,4 +1,4 @@
-# nf-price-tracker
+# Contas
 
 Long-term goal: a grocery price database built from scanned NFC-e receipts.
 Today that is the ingestion core, plus two front ends that read it.

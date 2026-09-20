@@ -1,7 +1,7 @@
 /**
  * Save an NFC-e page to disk so the parser tests can run against a real note.
  *
- *   pnpm --filter @nf-price-tracker/backend fixture:capture "<qr-url>" [outfile]
+ *   pnpm --filter @contas/backend fixture:capture "<qr-url>" [outfile]
  *
  * Defaults to data/nfce-fixture.html at the workspace root, which is gitignored
  * -- captured notes contain a CPF and must never be committed.

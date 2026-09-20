@@ -31,7 +31,7 @@ export function OnboardingScreen({ onConnected }: Props) {
         ]}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={[styles.title, { color: theme.text }]}>nf-price-tracker</Text>
+        <Text style={[styles.title, { color: theme.text }]}>Contas</Text>
         <Text style={[styles.subtitle, { color: theme.muted }]}>{t.onboarding.subtitle}</Text>
 
         <ServerForm submitLabel={t.onboarding.submit} onSaved={onConnected} />

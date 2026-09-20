@@ -1,8 +1,8 @@
-# @nf-price-tracker/web
+# @contas/web
 
 A plain HTML/CSS/JS front end for browsing scanned notes and exercising the
 ingest flow. No framework, no build step, no dependencies — `public/` is served
-exactly as written, by `@nf-price-tracker/backend`.
+exactly as written, by `@contas/backend`.
 
 ## Running
 

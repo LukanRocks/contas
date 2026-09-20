@@ -1,25 +1,25 @@
 {
   "expo": {
-    "name": "nf-price-tracker",
-    "slug": "nf-price-tracker",
+    "name": "Contas",
+    "slug": "contas",
     "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "scheme": "nf-price-tracker",
+    "scheme": "contas",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "bundleIdentifier": "com.lukanrocks.nfpricetracker",
+      "bundleIdentifier": "com.lukanrocks.contas",
       "supportsTablet": true,
       "infoPlist": {
         "NSAppTransportSecurity": {
           "NSAllowsLocalNetworking": true
         },
-        "NSLocalNetworkUsageDescription": "The app needs to reach your nf-price-tracker server on your local network."
+        "NSLocalNetworkUsageDescription": "The app needs to reach your Contas server on your local network."
       }
     },
     "android": {
-      "package": "com.lukanrocks.nfpricetracker",
+      "package": "com.lukanrocks.contas",
       "adaptiveIcon": {
         "backgroundColor": "#1E0F3C",
         "foregroundImage": "./assets/android-icon-foreground.png",

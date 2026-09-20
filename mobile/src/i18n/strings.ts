@@ -298,7 +298,7 @@ export const pt: Strings = {
     addressRequired: "Informe o endereço do servidor.",
     addressInvalid: "Endereço inválido. Exemplo: 192.168.1.10:3000",
     addressScheme: "O endereço precisa começar com http:// ou https://",
-    notOurBackend: "Esse endereço respondeu, mas não parece ser um servidor nf-price-tracker.",
+    notOurBackend: "Esse endereço respondeu, mas não parece ser um servidor Contas.",
     unhealthy: (detail) =>
       `O servidor respondeu, mas não está saudável${detail ? `: ${detail}` : "."}`,
     unexpectedList: "Resposta inesperada do servidor ao listar as notas.",
@@ -457,7 +457,7 @@ export const en: Strings = {
     addressRequired: "Enter the server's address.",
     addressInvalid: "That address is not valid. For example: 192.168.1.10:3000",
     addressScheme: "The address has to start with http:// or https://",
-    notOurBackend: "Something answered there, but it does not look like an nf-price-tracker server.",
+    notOurBackend: "Something answered there, but it does not look like a Contas server.",
     unhealthy: (detail) => `The server answered, but it is not healthy${detail ? `: ${detail}` : "."}`,
     unexpectedList: "Unexpected answer from the server while listing the notes.",
     timeout: (seconds) => `The server did not answer within ${seconds}s.`,

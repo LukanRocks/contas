@@ -1,5 +1,5 @@
 {
-  "name": "@nf-price-tracker/mobile",
+  "name": "@contas/mobile",
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@10.25.0",
@@ -7,7 +7,7 @@
   "engines": {
     "node": ">=20.19"
   },
-  "description": "React Native (Expo) client for @nf-price-tracker/backend — iOS and Android",
+  "description": "React Native (Expo) client for @contas/backend — iOS and Android",
   "scripts": {
     "ios": "expo run:ios",
     "ios:device": "expo run:ios --device --configuration Release",

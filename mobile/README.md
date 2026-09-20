@@ -1,8 +1,8 @@
-# @nf-price-tracker/mobile
+# @contas/mobile
 
 The mobile client — one React Native codebase for iOS and Android, built with
-[Expo](https://docs.expo.dev) (SDK 57). It talks to a `@nf-price-tracker/backend`
-you host yourself, over the same `/api` the web front end uses.
+[Expo](https://docs.expo.dev) (SDK 57). It talks to a `@contas/backend` you
+host yourself, over the same `/api` the web front end uses.
 
 ## Running
 
