@@ -1,4 +1,4 @@
-# nf-price-tracker — NFC-e ingestion core
+# Contas — NFC-e ingestion core
 
 Ingests a Brazilian **NFC-e** QR-code URL, scrapes the state fiscal portal page it
 points to, and stores both the raw HTML and a structured extraction in SQLite.
@@ -6,8 +6,7 @@ points to, and stores both the raw HTML and a structured extraction in SQLite.
 MVP scope: ingestion + storage only. No auth, no frontend, no product matching,
 no analytics.
 
-The `@nf-price-tracker/backend` package of the [nf-price-tracker](../README.md)
-workspace.
+The `@contas/backend` package of the [Contas](../README.md) workspace.
 
 ## Setup
 
@@ -22,27 +21,32 @@ cd backend && pnpm dev
 ```
 
 ```bash
-pnpm --filter @nf-price-tracker/backend dev
+pnpm --filter @contas/backend dev
 ```
 
 `pnpm dev` at the workspace root is a shortcut for the backend. Node 20+
 (developed on 25); TypeScript runs directly via Node's native type stripping,
 so there is no build step.
 
-| Env var         | Default                                     | Purpose                         |
-| --------------- | ------------------------------------------- | ------------------------------- |
-| `PORT`          | `3000`                                      | HTTP port                       |
-| `DATABASE_PATH` | `<workspace root>/data/nf-price-tracker.db` | SQLite file                     |
-| `WEB_ROOT`      | `../web/public`                             | Front-end files to serve at `/` |
+| Env var         | Default                           | Purpose                         |
+| --------------- | --------------------------------- | ------------------------------- |
+| `PORT`          | `3000`                            | HTTP port                       |
+| `DATABASE_PATH` | `<workspace root>/data/contas.db` | SQLite file                     |
+| `WEB_ROOT`      | `../web/public`                   | Front-end files to serve at `/` |
 
-The database lives at the workspace root — `data/nf-price-tracker.db`, beside
-the apps rather than inside one of them. The default is resolved from the
-package itself, so it lands there however you launch the server. `data/` is
-gitignored.
+The database lives at the workspace root — `data/contas.db`, beside the apps
+rather than inside one of them. The default is resolved from the package
+itself, so it lands there however you launch the server. `data/` is gitignored.
+
+This project was called nf-price-tracker until the rename, so a server older
+than that keeps its notes in `data/nf-price-tracker.db`. The first start after
+upgrading renames that file — WAL sidecars included — to `data/contas.db` and
+says so in the log. `DATABASE_PATH` skips all of it: the file you name is the
+file you get.
 
 This server hosts both halves of the app on one origin:
 
-- `/` — the [`@nf-price-tracker/web`](../web/README.md) front end (static files,
+- `/` — the [`@contas/web`](../web/README.md) front end (static files,
   no build step)
 - `/api/*` — the JSON API below
 
@@ -108,7 +112,7 @@ but omitted from this response so it stays readable; `raw_html_bytes` reports it
 size instead. To read the markup itself:
 
 ```bash
-sqlite3 data/nf-price-tracker.db "SELECT raw_html FROM notes WHERE chave = '...'"
+sqlite3 data/contas.db "SELECT raw_html FROM notes WHERE chave = '...'"
 ```
 
 ### `GET /api/nfce/:chave/html`
@@ -144,7 +148,7 @@ two halves:
 Capture one and the rest light up:
 
 ```bash
-pnpm --filter @nf-price-tracker/backend fixture:capture "<qr-url>"
+pnpm --filter @contas/backend fixture:capture "<qr-url>"
 ```
 
 That saves to `data/nfce-fixture.html` (gitignored). Add it to `.env` at the

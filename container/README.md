@@ -1,12 +1,12 @@
-# nf-price-tracker — server
+# Contas — server
 
-The self-hosted half of [nf-price-tracker](../README.md): a pnpm workspace that
-ships as one Docker image. Each package is its own folder here.
+The self-hosted half of [Contas](../README.md): a pnpm workspace that ships as
+one Docker image. Each package is its own folder here.
 
-| Package                     | Folder     | What it is                                                       |
-| --------------------------- | ---------- | ---------------------------------------------------------------- |
-| `@nf-price-tracker/backend` | `backend/` | NFC-e ingestion API — scrapes Brazilian fiscal notes into SQLite |
-| `@nf-price-tracker/web`     | `web/`     | Plain HTML/CSS front end, served by the backend at `/`           |
+| Package           | Folder     | What it is                                                       |
+| ----------------- | ---------- | ---------------------------------------------------------------- |
+| `@contas/backend` | `backend/` | NFC-e ingestion API — scrapes Brazilian fiscal notes into SQLite |
+| `@contas/web`     | `web/`     | Plain HTML/CSS front end, served by the backend at `/`           |
 
 The mobile client is a separate project in [`../mobile`](../mobile/README.md),
 with its own dependencies — nothing here installs or builds it.
@@ -36,7 +36,7 @@ stripping, so there is no build step in any package.
 Per-package commands work the usual two ways:
 
 ```bash
-pnpm --filter @nf-price-tracker/backend test
+pnpm --filter @contas/backend test
 ```
 
 ```bash
@@ -55,7 +55,7 @@ From this folder:
 docker compose up -d
 ```
 
-That pulls `ghcr.io/lukanrocks/nf-price-tracker:latest`, serves the app on
+That pulls `ghcr.io/lukanrocks/contas:latest`, serves the app on
 <http://localhost:3000>, and keeps the SQLite database in `./data` on the host
 so it survives upgrades. To update:
 
@@ -91,7 +91,7 @@ mismatch is obvious from the logs.
 
 ## Adding a package
 
-Create a folder here with a `package.json` named `@nf-price-tracker/<name>` —
+Create a folder here with a `package.json` named `@contas/<name>` —
 the `"*"` glob in `pnpm-workspace.yaml` picks it up automatically. Extend the
 shared compiler options so every package typechecks the same way:
 
@@ -106,7 +106,7 @@ folder, the way `../mobile` does.
 To depend on another workspace package, use the workspace protocol:
 
 ```json
-{ "dependencies": { "@nf-price-tracker/backend": "workspace:*" } }
+{ "dependencies": { "@contas/backend": "workspace:*" } }
 ```
 
 ## Layout
@@ -118,7 +118,7 @@ tsconfig.base.json    compiler options every package extends
 Dockerfile            multi-stage image; no compile step, just dependencies
 compose.yaml          local-server deployment
 .env.example          optional settings; copy to .env (gitignored)
-backend/              @nf-price-tracker/backend  (see backend/README.md)
-web/                  @nf-price-tracker/web      (see web/README.md)
+backend/              @contas/backend  (see backend/README.md)
+web/                  @contas/web      (see web/README.md)
 data/                 the SQLite database and captured fixtures (gitignored)
 ```

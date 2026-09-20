@@ -1,9 +1,9 @@
 services:
-  nf-price-tracker:
+  contas:
     # Published by .github/workflows/docker.yml. Swap for `build: .` to run
     # your working tree instead of the released image.
-    image: ghcr.io/lukanrocks/nf-price-tracker:latest
-    container_name: nf-price-tracker
+    image: ghcr.io/lukanrocks/contas:latest
+    container_name: contas
     restart: unless-stopped
     ports:
       - "${PORT:-3000}:3000"

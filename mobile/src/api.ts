@@ -81,7 +81,7 @@ function looksLocal(host: string): boolean {
 }
 
 /**
- * Confirms the address is a nf-price-tracker backend before anything is stored.
+ * Confirms the address is a Contas backend before anything is stored.
  * `/api/health` also pings SQLite, so a reachable-but-broken server is told
  * apart from a healthy one here rather than at the first list load.
  */

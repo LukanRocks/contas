@@ -1,4 +1,4 @@
 {
   "NSCameraUsageDescription": "O app usa a câmera para ler o QR code das notas fiscais.",
-  "NSLocalNetworkUsageDescription": "O app precisa falar com o servidor nf-price-tracker na sua rede local."
+  "NSLocalNetworkUsageDescription": "O app precisa falar com o servidor Contas na sua rede local."
 }

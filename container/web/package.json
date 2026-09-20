@@ -1,10 +1,10 @@
 {
-  "name": "@nf-price-tracker/web",
+  "name": "@contas/web",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "engines": {
     "node": ">=20"
   },
-  "description": "Static front end for @nf-price-tracker/backend; served by it at /"
+  "description": "Static front end for @contas/backend; served by it at /"
 }

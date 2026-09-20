@@ -1,4 +1,4 @@
 {
   "NSCameraUsageDescription": "The app uses the camera to read the QR code on your fiscal notes.",
-  "NSLocalNetworkUsageDescription": "The app needs to reach your nf-price-tracker server on your local network."
+  "NSLocalNetworkUsageDescription": "The app needs to reach your Contas server on your local network."
 }

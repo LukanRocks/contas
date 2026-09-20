@@ -20,7 +20,7 @@ function load(): string | null {
     // Misconfiguration is louder than a silent skip: the user asked for these.
     throw new Error(
       `NFCE_FIXTURE points at "${path}", which does not exist.\n` +
-        `Capture one with: pnpm --filter @nf-price-tracker/backend fixture:capture <qr-url>`,
+        `Capture one with: pnpm --filter @contas/backend fixture:capture <qr-url>`,
     );
   }
   const html = readFileSync(path, "utf8");

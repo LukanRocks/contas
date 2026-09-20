@@ -1,5 +1,5 @@
 {
-  "name": "nf-price-tracker",
+  "name": "contas",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -9,7 +9,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "dev": "pnpm --filter @nf-price-tracker/backend dev",
+    "dev": "pnpm --filter @contas/backend dev",
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck"
   }
