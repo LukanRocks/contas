@@ -99,6 +99,7 @@ as it was.
 index.ts            Expo entry point
 App.tsx             the saved-URL bootstrap, then onboarding or the tab bar
 app.json            Expo config: icons, bundle identifiers, network policy
+assets/             the app, adaptive and themed icons, rendered from ../assets
 src/
   api.ts            URL normalization, /api/health, /api/nfce, /api/nfce/:chave
   backend.ts        the saved server, as a context for navigator screens

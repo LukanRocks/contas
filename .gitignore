@@ -6,6 +6,9 @@ dist/
 *.log
 .DS_Store
 
+# assets/ -- Affinity writes one of these beside the document it has open
+*.af~lock~
+
 # Real notes identify real people -- never commit them, wherever they land.
 .env
 *.fixture.html

@@ -10,6 +10,7 @@ lockfile:
 | -------------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | [`container/`](container/README.md)    | The self-hosted server — the ingestion API and the web front end it serves, shipped as one Docker image |
 | [`mobile/`](mobile/README.md)          | React Native (Expo) client for iOS and Android, talking to that server                                  |
+| [`assets/`](assets/README.md)          | The logo, and the icon sources both front ends are rendered from                                        |
 
 ## Getting started
 
@@ -50,5 +51,6 @@ One workflow per project, each filtered to its own folder:
 ```
 container/    the server workspace and its Docker image (see container/README.md)
 mobile/       the Expo app (see mobile/README.md)
+assets/       the logo and the icon sources (see assets/README.md)
 .github/      one workflow per project
 ```
