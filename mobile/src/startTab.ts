@@ -6,7 +6,7 @@ import type { TabParamList } from "./navigation";
  * The tabs the app can open on, the default first. Settings is not one:
  * nobody opens the app to change it.
  */
-export const START_TABS = ["Home", "Scan"] as const satisfies readonly (keyof TabParamList)[];
+export const START_TABS = ["Home", "Notes", "Scan"] as const satisfies readonly (keyof TabParamList)[];
 
 export type StartTab = (typeof START_TABS)[number];
 
@@ -17,7 +17,7 @@ export function isStartTab(value: unknown): value is StartTab {
 
 /** The tab bar's own label, so the choice reads exactly as the tab it opens. */
 export function startTabLabel(tab: StartTab, t: Strings): string {
-  return tab === "Scan" ? t.tabs.scan : t.tabs.home;
+  return { Home: t.tabs.home, Notes: t.tabs.notes, Scan: t.tabs.scan }[tab];
 }
 
 export type StartTabChoice = {

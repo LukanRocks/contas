@@ -91,7 +91,7 @@ export async function saveThemeSetting(setting: ThemeSetting): Promise<void> {
   }
 }
 
-/** The notes on a first run, and whenever the stored value is not a tab we know. */
+/** Home on a first run, and whenever the stored value is not a tab we know. */
 export async function loadStartTab(): Promise<StartTab> {
   try {
     const stored = await AsyncStorage.getItem(START_TAB_KEY);
@@ -106,7 +106,7 @@ export async function saveStartTab(tab: StartTab): Promise<void> {
   try {
     await AsyncStorage.setItem(START_TAB_KEY, tab);
   } catch (err) {
-    // The app opens on the notes next time instead; only persistence is lost.
+    // The tab stored before stays in force next time; only persistence is lost.
     console.warn("[storage] could not save the start tab", err);
   }
 }

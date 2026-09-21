@@ -20,7 +20,7 @@ export function NoteRow({ note, onPress }: { note: NoteSummary; onPress: () => v
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityHint={t.home.openHint}
+      accessibilityHint={t.notes.openHint}
       style={({ pressed }) => [
         styles.row,
         { backgroundColor: theme.surface, borderColor: theme.border, opacity: pressed ? 0.6 : 1 },
@@ -28,10 +28,10 @@ export function NoteRow({ note, onPress }: { note: NoteSummary; onPress: () => v
     >
       <View style={styles.main}>
         <Text style={[styles.store, { color: theme.text }]} numberOfLines={2}>
-          {note.emit_name ?? t.home.unknownStore}
+          {note.emit_name ?? t.notes.unknownStore}
         </Text>
         <Text style={[styles.meta, { color: theme.muted }]} numberOfLines={1}>
-          {dateTime(note.emitted_at, t) ?? t.home.noEmissionDate} ·{" "}
+          {dateTime(note.emitted_at, t) ?? t.notes.noEmissionDate} ·{" "}
           {plural(note.item_count, t.units.item, t.units.items)}
         </Text>
       </View>

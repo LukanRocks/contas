@@ -100,13 +100,13 @@ export function ScanScreen() {
         <OutcomeView
           outcome={outcome}
           onScanAgain={scanAgain}
-          // To the list, even if a note was left open on Home.
-          onSeeNotes={() => navigation.navigate("Home", { screen: "NoteList", pop: true })}
+          // To the list, even if a note was left open on the NFs tab.
+          onSeeNotes={() => navigation.navigate("Notes", { screen: "NoteList", pop: true })}
         />
       ) : (
         <View style={styles.flex}>
           {/* Mounted only while the tab is on screen: the camera should not stay
-              live behind Home or Settings. */}
+              live behind another tab. */}
           {isFocused ? (
             <CameraView
               style={styles.flex}
@@ -179,7 +179,7 @@ function OutcomeView({
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.border }]}>
           <Text style={[styles.added, { color: theme.okText }]}>{t.scan.noteAdded}</Text>
           <Text style={[styles.store, { color: theme.text }]}>
-            {outcome.note.emit_name ?? t.home.unknownStore}
+            {outcome.note.emit_name ?? t.notes.unknownStore}
           </Text>
           <Text style={[styles.body, { color: theme.muted }]}>
             {brl(outcome.note.payable_c ?? outcome.note.total_value_c) ?? t.scan.totalUnknown} ·{" "}

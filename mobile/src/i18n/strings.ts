@@ -25,7 +25,7 @@ export type DateParts = {
 export type Strings = {
   formatDateTime: (parts: DateParts) => string;
 
-  tabs: { scan: string; home: string; settings: string };
+  tabs: { scan: string; home: string; notes: string; settings: string };
 
   units: {
     /** For `plural(n, one, many)`. */
@@ -74,7 +74,14 @@ export type Strings = {
     totalUnknown: string;
   };
 
+  /** The tab the app opens on, empty until it grows into something. */
   home: {
+    title: string;
+    placeholder: string;
+  };
+
+  /** The list of scanned notes, and the words its rows are read with. */
+  notes: {
     title: string;
     loading: string;
     retry: string;
@@ -172,7 +179,7 @@ export const pt: Strings = {
   formatDateTime: ({ year, month, day, time }) =>
     `${day}/${month}/${year}${time ? ` ${time}` : ""}`,
 
-  tabs: { scan: "Escanear", home: "Início", settings: "Ajustes" },
+  tabs: { scan: "Escanear", home: "Início", notes: "NFs", settings: "Ajustes" },
 
   units: {
     item: "item",
@@ -187,7 +194,7 @@ export const pt: Strings = {
     subtitle: "Suas notas ficam no seu servidor. Informe o endereço dele para começar.",
     submit: "Continuar",
     footnote:
-      "O endereço fica salvo no aparelho: nas próximas aberturas o app vai direto para as notas.",
+      "O endereço fica salvo no aparelho: nas próximas aberturas o app abre direto, sem perguntar de novo.",
   },
 
   server: {
@@ -224,6 +231,11 @@ export const pt: Strings = {
   },
 
   home: {
+    title: "Início",
+    placeholder: "Em breve.",
+  },
+
+  notes: {
     title: "Notas escaneadas",
     loading: "Carregando…",
     retry: "Tentar de novo",
@@ -332,7 +344,7 @@ export const en: Strings = {
     return `${Number(day)} ${name} ${year}${time ? ` ${time}` : ""}`;
   },
 
-  tabs: { scan: "Scan", home: "Notes", settings: "Settings" },
+  tabs: { scan: "Scan", home: "Home", notes: "NFs", settings: "Settings" },
 
   units: {
     item: "item",
@@ -346,7 +358,7 @@ export const en: Strings = {
   onboarding: {
     subtitle: "Your notes live on your own server. Enter its address to get started.",
     submit: "Continue",
-    footnote: "The address is saved on this device: next time the app opens straight on the notes.",
+    footnote: "The address is saved on this device: next time the app opens without asking again.",
   },
 
   server: {
@@ -383,6 +395,11 @@ export const en: Strings = {
   },
 
   home: {
+    title: "Home",
+    placeholder: "Coming soon.",
+  },
+
+  notes: {
     title: "Scanned notes",
     loading: "Loading…",
     retry: "Try again",

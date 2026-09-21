@@ -7,9 +7,9 @@ import type { StartTab } from "../startTab";
 import { useTheme } from "../theme";
 
 /**
- * Settings › Start screen: the notes, or straight to the camera for someone
- * who mostly opens the app at the till. There is no device default to follow,
- * so the notes are simply the first choice.
+ * Settings › Start screen: Home, the notes, or straight to the camera for
+ * someone who mostly opens the app at the till. There is no device default to
+ * follow, so Home is simply the first choice.
  */
 export function StartTabScreen() {
   const theme = useTheme();

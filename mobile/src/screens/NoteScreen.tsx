@@ -27,11 +27,11 @@ import {
 } from "../format";
 import { useStrings } from "../i18n";
 import type { Strings } from "../i18n";
-import type { HomeStackParamList } from "../navigation";
+import type { NotesStackParamList } from "../navigation";
 import { useTheme } from "../theme";
 import type { NoteDetail, NoteItem } from "../types";
 
-type Props = NativeStackScreenProps<HomeStackParamList, "Note">;
+type Props = NativeStackScreenProps<NotesStackParamList, "Note">;
 
 type State =
   | { status: "loading" }
@@ -77,7 +77,7 @@ export function NoteScreen({ route }: Props) {
     return (
       <View style={[styles.center, { backgroundColor: theme.bg }]}>
         <ActivityIndicator color={theme.accent} />
-        <Text style={[styles.centerText, { color: theme.muted }]}>{t.home.loading}</Text>
+        <Text style={[styles.centerText, { color: theme.muted }]}>{t.notes.loading}</Text>
       </View>
     );
   }
@@ -96,7 +96,7 @@ export function NoteScreen({ route }: Props) {
             { backgroundColor: theme.accent, opacity: pressed ? 0.85 : 1 },
           ]}
         >
-          <Text style={[styles.buttonText, { color: theme.accentText }]}>{t.home.retry}</Text>
+          <Text style={[styles.buttonText, { color: theme.accentText }]}>{t.notes.retry}</Text>
         </Pressable>
       </View>
     );
@@ -116,7 +116,7 @@ export function NoteScreen({ route }: Props) {
       <View style={styles.issuer}>
         <View style={styles.title}>
           <Text style={[styles.store, { color: theme.text }]} selectable>
-            {note.emit_name ?? t.home.unknownStore}
+            {note.emit_name ?? t.notes.unknownStore}
           </Text>
           {heading ? <Text style={[styles.heading, { color: theme.muted }]}>{heading}</Text> : null}
         </View>

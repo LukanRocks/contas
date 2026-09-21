@@ -9,6 +9,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 // One module per icon: Metro does not tree-shake, so the package's index would
 // bundle every icon Lucide has.
 import House from "lucide-react-native/icons/house";
+import ReceiptText from "lucide-react-native/icons/receipt-text";
 import ScanQrCode from "lucide-react-native/icons/scan-qr-code";
 import Settings from "lucide-react-native/icons/settings";
 import { useLocales } from "expo-localization";
@@ -17,9 +18,10 @@ import { I18nContext, useStrings } from "./src/i18n";
 import { resolveLanguage } from "./src/i18n/language";
 import type { LanguageSetting } from "./src/i18n/language";
 import { BUNDLES } from "./src/i18n/strings";
-import type { HomeStackParamList, SettingsStackParamList, TabParamList } from "./src/navigation";
+import type { NotesStackParamList, SettingsStackParamList, TabParamList } from "./src/navigation";
 import { HomeScreen } from "./src/screens/HomeScreen";
 import { NoteScreen } from "./src/screens/NoteScreen";
+import { NotesScreen } from "./src/screens/NotesScreen";
 import { OnboardingScreen } from "./src/screens/OnboardingScreen";
 import { ScanScreen } from "./src/screens/ScanScreen";
 import { LanguageScreen } from "./src/screens/LanguageScreen";
@@ -48,7 +50,7 @@ import type { ThemeSetting } from "./src/theme/scheme";
 /**
  * Until a server is known there is nothing to navigate to, so onboarding sits
  * outside the navigator and is shown by a piece of state. Once an address is
- * saved the app is the tab bar: Scan, Notes and Settings, where the server
+ * saved the app is the tab bar: Scan, Home, NFs and Settings, where the server
  * is changed from then on.
  */
 type Boot =
@@ -57,7 +59,7 @@ type Boot =
   | { status: "ready"; server: Server };
 
 const Tab = createBottomTabNavigator<TabParamList>();
-const HomeStack = createNativeStackNavigator<HomeStackParamList>();
+const NotesStack = createNativeStackNavigator<NotesStackParamList>();
 const SettingsStack = createNativeStackNavigator<SettingsStackParamList>();
 
 function App() {
@@ -181,7 +183,7 @@ function Tabs() {
 
   return (
     <Tab.Navigator
-      // The notes unless Settings › Start screen says otherwise. Only read when
+      // Home unless Settings › Start screen says otherwise. Only read when
       // the navigator mounts, so a new pick waits for the next start rather
       // than pulling the user out of Settings.
       initialRouteName={startTab}
@@ -199,11 +201,21 @@ function Tabs() {
       />
       <Tab.Screen
         name="Home"
-        component={HomeNavigator}
+        component={HomeScreen}
         options={{
           title: t.tabs.home,
           tabBarIcon: ({ focused, color, size }) => (
             <House color={color} size={size} strokeWidth={focused ? 2.5 : 2} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Notes"
+        component={NotesNavigator}
+        options={{
+          title: t.tabs.notes,
+          tabBarIcon: ({ focused, color, size }) => (
+            <ReceiptText color={color} size={size} strokeWidth={focused ? 2.5 : 2} />
           ),
         }}
       />
@@ -222,22 +234,22 @@ function Tabs() {
 }
 
 /** The list, and each note opened from it as its own screen, with a back button and swipe. */
-function HomeNavigator() {
+function NotesNavigator() {
   const t = useStrings();
 
   return (
-    <HomeStack.Navigator>
-      <HomeStack.Screen
+    <NotesStack.Navigator>
+      <NotesStack.Screen
         name="NoteList"
-        component={HomeScreen}
-        options={{ title: t.home.title, headerShown: false }}
+        component={NotesScreen}
+        options={{ title: t.notes.title, headerShown: false }}
       />
-      <HomeStack.Screen
+      <NotesStack.Screen
         name="Note"
         component={NoteScreen}
         options={{ title: t.note.screenTitle }}
       />
-    </HomeStack.Navigator>
+    </NotesStack.Navigator>
   );
 }
 

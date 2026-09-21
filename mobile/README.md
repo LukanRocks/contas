@@ -43,8 +43,12 @@ database and a server that is not this one are all told apart at setup instead
 of at first use.
 
 **Every launch after** — the address is read back from the device and the app
-opens straight on the notes, or on **Scan** if Settings › Start screen says so.
-From there a tab bar switches between **Scan**, **Home** and **Settings**.
+opens straight on **Home**, or on **NFs** or **Scan** if Settings › Start
+screen says so. From there a tab bar switches between **Scan**, **Home**,
+**NFs** and **Settings**.
+
+**Home** — the tab the app opens on, a placeholder for now. The notes moved to
+their own tab so this one can grow into something else.
 
 **Scan** — the camera, reading QR codes. A note's code is handed to
 `POST /api/nfce`, which fetches the note from its state portal, parses it and
@@ -56,14 +60,14 @@ nothing the server would have accepted is refused here. The write is idempotent
 on the chave, so rescanning a note updates the stored copy instead of
 duplicating it. The camera is mounted only while the tab is on screen.
 
-**Home** — every scanned note from `GET /api/nfce`, newest emission first,
+**NFs** — every scanned note from `GET /api/nfce`, newest emission first,
 same order as the web list: establishment, emission date, item count, and what
 was paid (`payable_c`, falling back to the items total). Pull to refresh; the
 list also reloads whenever the tab comes into focus, so a note just scanned is
 already there. That reload is quiet — a failed one leaves the list as it was
 rather than replacing it with an error, which pulling to refresh would report.
 
-**Home › a note** — tapping a note opens all of it from `GET /api/nfce/:chave`,
+**NFs › a note** — tapping a note opens all of it from `GET /api/nfce/:chave`,
 in the web detail page's order: the issuer (CNPJ, address, UF, the chave in
 groups of four, the QR URL), the totals, the consumer, every line with its
 quantity, unit price and store code, and when the server fetched it. The chave
@@ -81,10 +85,10 @@ one the app speaks wins, English if it speaks neither. Picking a language pins
 it; leaving it on the device setting means a phone switched to English later
 carries the app with it, live.
 
-**Settings › Start screen** — **Notes**, the default, or **Scan**, for someone
-who mostly opens the app at the till. A new pick is saved at once but applies
-the next time the app starts: the tab bar reads it only when it mounts, so
-choosing Scan does not pull you out of Settings.
+**Settings › Start screen** — **Home**, the default, **NFs**, or **Scan**, for
+someone who mostly opens the app at the till. A new pick is saved at once but
+applies the next time the app starts: the tab bar reads it only when it mounts,
+so choosing Scan does not pull you out of Settings.
 
 **Settings › Server** — names the server (it is "Server" until you do;
 clearing the name goes back to that) and changes the backend when it moves.
@@ -103,7 +107,7 @@ assets/             the app, adaptive and themed icons, rendered from ../assets
 src/
   api.ts            URL normalization, /api/health, /api/nfce, /api/nfce/:chave
   backend.ts        the saved server, as a context for navigator screens
-  navigation.ts     route names and params for the tabs and the Home and Settings stacks
+  navigation.ts     route names and params for the tabs and the NFs and Settings stacks
   scan.ts           what a scanned QR code means to the ingest endpoint
   startTab.ts       which tab the app opens on, and the context Settings changes it through
   i18n/
@@ -117,9 +121,9 @@ src/
     scheme.ts       which of the two to render in
     index.ts        the context the components read it through
   types.ts          the backend fields this app reads
-  screens/          OnboardingScreen, ScanScreen, HomeScreen, NoteScreen,
-                    SettingsScreen, ServerScreen, LanguageScreen, ThemeScreen,
-                    StartTabScreen
+  screens/          OnboardingScreen, ScanScreen, HomeScreen, NotesScreen,
+                    NoteScreen, SettingsScreen, ServerScreen, LanguageScreen,
+                    ThemeScreen, StartTabScreen
   components/       NoteRow, ServerForm, ScreenHeader, ChoiceList
 locales/            the iOS permission strings, per language
 test/               format, URL normalization, the note endpoint's answers, QR
