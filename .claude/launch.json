@@ -6,6 +6,12 @@
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["--dir", "container", "dev"],
       "port": 3000
+    },
+    {
+      "name": "v2",
+      "runtimeExecutable": "env",
+      "runtimeArgs": ["PORT=3001", "pnpm", "--dir", "v2", "dev"],
+      "port": 3001
     }
   ]
 }

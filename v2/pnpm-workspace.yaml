@@ -1,0 +1,8 @@
+packages:
+  - apps/*
+  - packages/*
+
+# drizzle-kit bundles the config and schema with esbuild; without this pnpm
+# skips esbuild's install script.
+onlyBuiltDependencies:
+  - esbuild
