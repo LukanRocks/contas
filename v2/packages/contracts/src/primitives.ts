@@ -31,6 +31,12 @@ export const UtcTimestamp = z
 /** For query parameters: an absent one and an empty one (`?q=`) mean the same thing. */
 export const emptyAsAbsent = <Schema extends z.ZodType>(schema: Schema) => z.preprocess((value) => (value === '' ? undefined : value), schema.optional())
 
+/** The query parameters every paginated list takes. Pages follow `next_cursor` until it is null. */
+export const PageQuery = {
+  cursor: emptyAsAbsent(z.string()).meta({ description: 'The next_cursor of the previous page.' }),
+  limit: z.coerce.number().int().min(1).max(200).default(50),
+}
+
 /** The largest value Postgres' bigint holds: 2^63 - 1. */
 export const INT64_MAX = 9223372036854775807n
 

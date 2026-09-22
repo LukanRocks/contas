@@ -1,4 +1,5 @@
 export * from './accounts.ts'
+export * from './audit-log.ts'
 export * from './balances.ts'
 export * from './currencies.ts'
 export * from './health.ts'

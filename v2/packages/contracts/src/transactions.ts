@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { CurrencyCode } from './currencies.ts'
-import { boundedName, emptyAsAbsent, hasNoNul, MinorUnits, Timestamp, UtcTimestamp, Uuid } from './primitives.ts'
+import { boundedName, emptyAsAbsent, hasNoNul, MinorUnits, PageQuery, Timestamp, UtcTimestamp, Uuid } from './primitives.ts'
 
 export const Transaction = z
   .object({
@@ -73,11 +73,6 @@ export const TransactionList = z
   })
   .meta({ id: 'TransactionList' })
 export type TransactionList = z.infer<typeof TransactionList>
-
-export const PageQuery = {
-  cursor: emptyAsAbsent(z.string()).meta({ description: 'The next_cursor of the previous page.' }),
-  limit: z.coerce.number().int().min(1).max(200).default(50),
-}
 
 export const TransactionListQuery = z.object({
   account_id: emptyAsAbsent(Uuid).meta({ description: 'Transactions from or to this account.' }),

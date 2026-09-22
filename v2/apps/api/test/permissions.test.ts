@@ -27,7 +27,7 @@ async function createFeira({ space, owner }: Cast, db: Database) {
 const readers: Who[] = ['viewer', 'editor', 'owner']
 const writers: Who[] = ['editor', 'owner']
 
-// §8.2, for the actions that exist so far. The audit log joins in the next milestone.
+// §8.2 in full: every action, as every role and as an outsider.
 const CASES: Case[] = [
   {
     action: 'read the space',
@@ -197,6 +197,12 @@ const CASES: Case[] = [
   {
     action: "read the space's balances",
     request: async ({ space }) => ({ method: 'GET', path: `/v1/spaces/${space.id}/balances` }),
+    allowed: readers,
+    ok: 200,
+  },
+  {
+    action: 'read the audit log',
+    request: async ({ space }) => ({ method: 'GET', path: `/v1/spaces/${space.id}/audit-log` }),
     allowed: readers,
     ok: 200,
   },
