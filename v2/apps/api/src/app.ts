@@ -14,6 +14,7 @@ import { currencyRoutes } from './modules/currencies/routes.ts'
 import { healthRoutes } from './modules/health/routes.ts'
 import { memberRoutes } from './modules/members/routes.ts'
 import { spaceRoutes } from './modules/spaces/routes.ts'
+import { transactionRoutes } from './modules/transactions/routes.ts'
 import { userRoutes } from './modules/users/routes.ts'
 
 /**
@@ -39,6 +40,7 @@ export function createApp({ db }: { db: Database }) {
   app.route('/', memberRoutes)
   app.route('/', currencyRoutes)
   app.route('/', accountRoutes)
+  app.route('/', transactionRoutes)
 
   app.openAPIRegistry.registerComponent('securitySchemes', 'ActingUser', {
     type: 'apiKey',

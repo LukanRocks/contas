@@ -52,11 +52,13 @@ export const SignedMinorUnits = z
   }, `Must be between -${INT64_MAX} and ${INT64_MAX}.`)
   .meta({ example: '320000', description: 'Signed integer minor units of the currency, as a string.' })
 
+/** Postgres text cannot hold NUL, so strings that would reach it are checked for one rather than failing in the database. */
+export const hasNoNul = (value: string) => !value.includes('\u0000')
+
 /**
  * A name of 1 to `max` characters, after leading and trailing whitespace is trimmed, the trimmed value is what gets stored.
  * So a name of only whitespace is refused.
  * Characters are counted as code points, the way Postgres' char_length and JSON Schema's maxLength count them.
- * Postgres text cannot hold NUL, so it is refused here rather than failing in the database.
  */
 export const boundedName = (max: number) =>
   z
@@ -67,5 +69,5 @@ export const boundedName = (max: number) =>
 
       return length >= 1 && length <= max
     }, `Must be 1 to ${max} characters.`)
-    .refine((name) => !name.includes('\u0000'), 'Must not contain NUL characters.')
+    .refine(hasNoNul, 'Must not contain NUL characters.')
     .meta({ minLength: 1, maxLength: max, description: 'Leading and trailing whitespace is trimmed before the length is checked and the name is stored.' })

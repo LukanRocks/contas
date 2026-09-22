@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 import type { Database } from '../src/db/client.ts'
-import { addMember, call, createAccount, createCast, createUser, withRollback } from './helpers.ts'
+import { addMember, call, createAccount, createCast, createTransaction, createUser, withRollback } from './helpers.ts'
 
 type Cast = Awaited<ReturnType<typeof createCast>>
 type Who = 'viewer' | 'editor' | 'owner' | 'outsider'
@@ -16,10 +16,18 @@ type Case = {
   ok: number
 }
 
+/** A transaction between two new accounts of the cast's space. */
+async function createFeira({ space, owner }: Cast, db: Database) {
+  const nubank = await createAccount(db, space, owner, { name: 'Nubank' })
+  const market = await createAccount(db, space, owner, { name: 'Supermercado', kind: 'unmanaged' })
+
+  return createTransaction(db, space, owner, { name: 'Feira', from_account_id: nubank.id, to_account_id: market.id, from_value: '12000' })
+}
+
 const readers: Who[] = ['viewer', 'editor', 'owner']
 const writers: Who[] = ['editor', 'owner']
 
-// §8.2, for the actions that exist so far. Transactions, balances and the audit log join as they land.
+// §8.2, for the actions that exist so far. Balances and the audit log join as they land.
 const CASES: Case[] = [
   {
     action: 'read the space',
@@ -110,6 +118,55 @@ const CASES: Case[] = [
       const account = await createAccount(db, space, owner, { name: 'Supermercado', kind: 'unmanaged' })
 
       return { method: 'DELETE', path: `/v1/spaces/${space.id}/accounts/${account.id}` }
+    },
+    allowed: writers,
+    ok: 204,
+  },
+  {
+    action: 'list transactions',
+    request: async ({ space }) => ({ method: 'GET', path: `/v1/spaces/${space.id}/transactions` }),
+    allowed: readers,
+    ok: 200,
+  },
+  {
+    action: 'read a transaction',
+    request: async (cast, db) => {
+      const transaction = await createFeira(cast, db)
+
+      return { method: 'GET', path: `/v1/spaces/${cast.space.id}/transactions/${transaction.id}` }
+    },
+    allowed: readers,
+    ok: 200,
+  },
+  {
+    action: 'create a transaction',
+    request: async ({ space, owner }, db) => {
+      const nubank = await createAccount(db, space, owner, { name: 'Nubank' })
+      const market = await createAccount(db, space, owner, { name: 'Supermercado', kind: 'unmanaged' })
+
+      const body = { name: 'Feira', from_account_id: nubank.id, to_account_id: market.id, from_value: '12000' }
+
+      return { method: 'POST', path: `/v1/spaces/${space.id}/transactions`, body }
+    },
+    allowed: writers,
+    ok: 201,
+  },
+  {
+    action: 'update a transaction',
+    request: async (cast, db) => {
+      const transaction = await createFeira(cast, db)
+
+      return { method: 'PATCH', path: `/v1/spaces/${cast.space.id}/transactions/${transaction.id}`, body: { name: 'Feira livre' } }
+    },
+    allowed: writers,
+    ok: 200,
+  },
+  {
+    action: 'delete a transaction',
+    request: async (cast, db) => {
+      const transaction = await createFeira(cast, db)
+
+      return { method: 'DELETE', path: `/v1/spaces/${cast.space.id}/transactions/${transaction.id}` }
     },
     allowed: writers,
     ok: 204,

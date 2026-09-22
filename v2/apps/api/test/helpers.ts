@@ -1,4 +1,4 @@
-import type { CreateAccount, Role, Space, User } from '@contas/contracts'
+import type { CreateAccount, CreateTransaction, Role, Space, User } from '@contas/contracts'
 import { and, asc, eq, sql, TransactionRollbackError } from 'drizzle-orm'
 import { createApp, type App } from '../src/app.ts'
 import type { Database } from '../src/db/client.ts'
@@ -8,6 +8,7 @@ import type { Actor } from '../src/lib/router.ts'
 import * as accounts from '../src/modules/accounts/service.ts'
 import * as members from '../src/modules/members/service.ts'
 import * as spaces from '../src/modules/spaces/service.ts'
+import * as transactions from '../src/modules/transactions/service.ts'
 import * as users from '../src/modules/users/service.ts'
 import { testDb } from './db.ts'
 
@@ -112,6 +113,10 @@ export const addMember = (db: Database, space: Space, owner: User, user: User, r
 /** An account in `space`, created as `actor`. Defaults to a managed BRL account with no opening balance. */
 export const createAccount = (db: Database, space: Space, actor: User, input: Partial<CreateAccount> & { name: string }) =>
   accounts.createAccount(db, space.id, { kind: 'managed', currency_code: 'BRL', ...input } as CreateAccount, actorOf(actor))
+
+/** A transaction in `space`, created as `actor` through the full rule check. */
+export const createTransaction = (db: Database, space: Space, actor: User, input: CreateTransaction) =>
+  transactions.createTransaction(db, space.id, input, actorOf(actor))
 
 /** A space with one member of each role, plus a user who belongs to it in no way. */
 export async function createCast(db: Database) {
