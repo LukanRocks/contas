@@ -6,11 +6,15 @@ const optional = <Schema extends z.ZodType>(schema: Schema) => z.preprocess((val
 
 const postgresUrl = z.url({ protocol: /^postgres(ql)?$/ })
 
+/** This repository: where the source of an unmodified build lives. */
+export const UPSTREAM_SOURCE_URL = 'https://github.com/LukanRocks/contas'
+
 const Env = z.object({
   DATABASE_URL: optional(postgresUrl),
   DATABASE_URL_TEST: optional(postgresUrl),
   PORT: z.preprocess((value) => (value === '' ? undefined : value), z.coerce.number().int().min(1).max(65535).default(3000)),
   APP_VERSION: optional(z.string().trim().min(1)),
+  SOURCE_URL: optional(z.url({ protocol: /^https?$/ })),
 })
 
 const parsed = Env.safeParse(process.env)
@@ -21,6 +25,11 @@ export const env = {
   ...parsed.data,
   /** Injected at Docker build time. A plain checkout reports the package version. */
   version: parsed.data.APP_VERSION ?? pkg.version,
+  /**
+   * Where users of this server can get its source, which the AGPL (section 13) requires anyone serving a modified version to offer.
+   * A fork sets SOURCE_URL to its own repository.
+   */
+  sourceUrl: parsed.data.SOURCE_URL ?? UPSTREAM_SOURCE_URL,
 }
 
 /** For entry points that cannot run without a database. */

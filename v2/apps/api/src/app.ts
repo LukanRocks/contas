@@ -55,7 +55,13 @@ export function createApp({ db }: { db: Database }) {
 
   app.doc31('/v1/openapi.json', {
     openapi: '3.1.0',
-    info: { title: 'Contas API', version: env.version },
+    info: {
+      title: 'Contas API',
+      version: env.version,
+      description: `Free software under the GNU Affero General Public License, version 3 only. The source of this version is at ${env.sourceUrl}.`,
+      license: { name: 'AGPL-3.0-only', url: 'https://www.gnu.org/licenses/agpl-3.0.html' },
+    },
+    externalDocs: { description: 'Source code', url: env.sourceUrl },
     security: [{ ActingUser: [] }],
   })
 

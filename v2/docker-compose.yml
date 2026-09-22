@@ -32,6 +32,8 @@ services:
       db:
         condition: service_healthy
     environment:
+      # Where users can get this server's source. Set it to your fork's repository if you run a modified version.
+      SOURCE_URL: ${SOURCE_URL:-}
       DATABASE_URL: postgres://${POSTGRES_USER:-contas}:${POSTGRES_PASSWORD:-contas}@db:5432/${POSTGRES_DB:-contas}
       PORT: 3000
     ports:

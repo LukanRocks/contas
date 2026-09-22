@@ -75,6 +75,7 @@ Run from this folder. Dependencies install with pnpm, and everything runs on Bun
 | `DATABASE_URL_TEST` | The disposable test database. Tests refuse to run if it equals `DATABASE_URL`                    |
 | `PORT`              | HTTP port: the server's in `pnpm dev`, the published one in Compose. Defaults to 3000            |
 | `APP_VERSION`       | Reported by `/health`. Pass a git tag or short SHA at build time, otherwise the package version  |
+| `SOURCE_URL`        | Where users can get this server's source, linked from `/docs`. Defaults to this repository       |
 
 `.env` lives here, in `v2/`, and is gitignored. See [`.env.example`](.env.example).
 
@@ -153,6 +154,14 @@ A few choices go beyond the letter of [the spec](packages/specs/finance-api.md):
   side's value in the same update.
 
 The code states each one where it applies.
+
+## License
+
+Like the rest of the repo, `AGPL-3.0-only`: see the [root README](../README.md#license) and
+[LICENSE](../LICENSE). The OpenAPI document declares it, and `/docs` links to the source.
+
+If you run a modified version for other people, the license requires you to offer them its
+source. Set `SOURCE_URL` to your fork's repository, and the link in `/docs` points there.
 
 ## Layout
 

@@ -2,7 +2,7 @@ import { describe, expect, spyOn, test } from 'bun:test'
 import pkg from '../package.json' with { type: 'json' }
 import { createApp } from '../src/app.ts'
 import { createDb } from '../src/db/client.ts'
-import { env } from '../src/env.ts'
+import { env, UPSTREAM_SOURCE_URL } from '../src/env.ts'
 import { call, withRollback } from './helpers.ts'
 
 describe('GET /health', () => {
@@ -49,6 +49,21 @@ describe('API documentation', () => {
       expect(Object.keys(res.body.paths)).toContain('/health')
       expect(res.body.components.schemas).toHaveProperty('Health')
     }))
+
+  test('declares the AGPL-3.0-only license and links to the source of this version', () =>
+    withRollback(async ({ app }) => {
+      const res = await call(app, 'GET', '/v1/openapi.json')
+
+      expect(res.body.info.license).toEqual({ name: 'AGPL-3.0-only', url: 'https://www.gnu.org/licenses/agpl-3.0.html' })
+      expect(res.body.externalDocs).toEqual({ description: 'Source code', url: env.sourceUrl })
+      expect(res.body.info.description).toContain(env.sourceUrl)
+    }))
+
+  test('links to the upstream repository unless SOURCE_URL says otherwise', () => {
+    if (env.SOURCE_URL) return
+
+    expect(env.sourceUrl).toBe(UPSTREAM_SOURCE_URL)
+  })
 
   test('serves the Scalar reference at /docs, pointed at the document', () =>
     withRollback(async ({ app }) => {
