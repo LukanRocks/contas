@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 import type { Database } from '../src/db/client.ts'
-import { addMember, call, createCast, createUser, withRollback } from './helpers.ts'
+import { addMember, call, createAccount, createCast, createUser, withRollback } from './helpers.ts'
 
 type Cast = Awaited<ReturnType<typeof createCast>>
 type Who = 'viewer' | 'editor' | 'owner' | 'outsider'
@@ -17,8 +17,9 @@ type Case = {
 }
 
 const readers: Who[] = ['viewer', 'editor', 'owner']
+const writers: Who[] = ['editor', 'owner']
 
-// §8.2, for the actions that exist so far. Accounts, transactions, balances and the audit log join as they land.
+// §8.2, for the actions that exist so far. Transactions, balances and the audit log join as they land.
 const CASES: Case[] = [
   {
     action: 'read the space',
@@ -65,6 +66,52 @@ const CASES: Case[] = [
       return { method: 'DELETE', path: `/v1/spaces/${space.id}/members/${other.id}` }
     },
     allowed: ['owner'],
+    ok: 204,
+  },
+  {
+    action: 'list accounts',
+    request: async ({ space }) => ({ method: 'GET', path: `/v1/spaces/${space.id}/accounts` }),
+    allowed: readers,
+    ok: 200,
+  },
+  {
+    action: 'read an account',
+    request: async ({ space, owner }, db) => {
+      const account = await createAccount(db, space, owner, { name: 'Nubank' })
+
+      return { method: 'GET', path: `/v1/spaces/${space.id}/accounts/${account.id}` }
+    },
+    allowed: readers,
+    ok: 200,
+  },
+  {
+    action: 'create an account',
+    request: async ({ space }) => ({
+      method: 'POST',
+      path: `/v1/spaces/${space.id}/accounts`,
+      body: { name: 'Nubank', kind: 'managed', currency_code: 'BRL' },
+    }),
+    allowed: writers,
+    ok: 201,
+  },
+  {
+    action: 'update an account',
+    request: async ({ space, owner }, db) => {
+      const account = await createAccount(db, space, owner, { name: 'Nubank' })
+
+      return { method: 'PATCH', path: `/v1/spaces/${space.id}/accounts/${account.id}`, body: { archived: true } }
+    },
+    allowed: writers,
+    ok: 200,
+  },
+  {
+    action: 'delete an account',
+    request: async ({ space, owner }, db) => {
+      const account = await createAccount(db, space, owner, { name: 'Supermercado', kind: 'unmanaged' })
+
+      return { method: 'DELETE', path: `/v1/spaces/${space.id}/accounts/${account.id}` }
+    },
+    allowed: writers,
     ok: 204,
   },
   {

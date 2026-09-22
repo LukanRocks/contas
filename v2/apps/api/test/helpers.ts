@@ -1,9 +1,11 @@
-import type { Role, Space, User } from '@contas/contracts'
+import type { CreateAccount, Role, Space, User } from '@contas/contracts'
 import { and, asc, eq, sql, TransactionRollbackError } from 'drizzle-orm'
 import { createApp, type App } from '../src/app.ts'
 import type { Database } from '../src/db/client.ts'
+import { pgErrorCode } from '../src/lib/errors.ts'
 import { auditLog } from '../src/db/schema.ts'
 import type { Actor } from '../src/lib/router.ts'
+import * as accounts from '../src/modules/accounts/service.ts'
 import * as members from '../src/modules/members/service.ts'
 import * as spaces from '../src/modules/spaces/service.ts'
 import * as users from '../src/modules/users/service.ts'
@@ -43,6 +45,22 @@ export async function withCommittedDb<Result>(fn: (context: TestContext) => Prom
   } finally {
     await testDb.execute(sql`TRUNCATE users, spaces, space_members, accounts, transactions, audit_log CASCADE`)
   }
+}
+
+/**
+ * Runs one statement in a savepoint and returns the SQLSTATE it failed with, or undefined if it succeeded.
+ * For proving the rules the database enforces on its own. The savepoint keeps the test's transaction usable afterwards.
+ */
+export async function sqlStateOf(db: Database, statement: (savepoint: Database) => Promise<unknown>): Promise<string | undefined> {
+  try {
+    await db.transaction(async (savepoint) => {
+      await statement(savepoint)
+    })
+  } catch (err) {
+    return pgErrorCode(err) ?? 'not a Postgres error'
+  }
+
+  return undefined
 }
 
 export type CallOptions = {
@@ -90,6 +108,10 @@ export const createSpace = (db: Database, owner: User, name = 'Space') => spaces
 /** Adds `user` to the space as `role`, acting as the space's owner. */
 export const addMember = (db: Database, space: Space, owner: User, user: User, role: Role) =>
   members.addMember(db, space.id, { user_id: user.id, role }, actorOf(owner))
+
+/** An account in `space`, created as `actor`. Defaults to a managed BRL account with no opening balance. */
+export const createAccount = (db: Database, space: Space, actor: User, input: Partial<CreateAccount> & { name: string }) =>
+  accounts.createAccount(db, space.id, { kind: 'managed', currency_code: 'BRL', ...input } as CreateAccount, actorOf(actor))
 
 /** A space with one member of each role, plus a user who belongs to it in no way. */
 export async function createCast(db: Database) {
