@@ -1,0 +1,16 @@
+{
+  "name": "contas-v2",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "AGPL-3.0-only",
+  "packageManager": "pnpm@10.25.0",
+  "scripts": {
+    "dev": "bun --watch apps/api/src/index.ts",
+    "test": "pnpm --filter @contas/api test",
+    "typecheck": "pnpm -r typecheck",
+    "db:generate": "pnpm --filter @contas/api db:generate",
+    "db:migrate": "bun apps/api/src/db/migrate.ts",
+    "seed:demo": "bun run apps/api/src/db/demo/seed.ts"
+  }
+}

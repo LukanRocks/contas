@@ -3,13 +3,14 @@
 Long-term goal: a grocery price database built from scanned NFC-e receipts.
 Today that is the ingestion core, plus two front ends that read it.
 
-The repo holds two independent projects, each with its own dependencies and
+The repo holds three independent projects, each with its own dependencies and
 lockfile:
 
 | Folder                                 | What it is                                                                                              |
 | -------------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | [`container/`](container/README.md)    | The self-hosted server — the ingestion API and the web front end it serves, shipped as one Docker image |
 | [`mobile/`](mobile/README.md)          | React Native (Expo) client for iOS and Android, talking to that server                                  |
+| [`v2/`](v2/README.md)                  | The next architecture: a self-hosted finance API (Bun, Postgres) the projects above will move onto      |
 | [`assets/`](assets/README.md)          | The logo, and the icon sources both front ends are rendered from                                        |
 
 ## Getting started

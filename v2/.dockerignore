@@ -1,0 +1,12 @@
+# Build context hygiene: keep local state, secrets and host artefacts out of
+# the image and the build cache.
+node_modules
+**/node_modules
+.env
+.DS_Store
+
+# Not needed at runtime
+**/*.md
+**/test
+docker-compose.yml
+docker
