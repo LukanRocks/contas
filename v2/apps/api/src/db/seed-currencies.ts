@@ -170,7 +170,7 @@ export const ISO_4217: ReadonlyArray<{ code: string; name: string; minor_units: 
 export async function seedCurrencies(db: Database): Promise<void> {
   await db
     .insert(currencies)
-    .values(ISO_4217.map((c) => ({ code: c.code, name: c.name, minorUnits: c.minor_units })))
+    .values(ISO_4217.map((currency) => ({ code: currency.code, name: currency.name, minorUnits: currency.minor_units })))
     .onConflictDoUpdate({
       target: currencies.code,
       set: { name: sql`excluded.name`, minorUnits: sql`excluded.minor_units` },

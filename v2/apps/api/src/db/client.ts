@@ -5,7 +5,7 @@ import postgres from 'postgres'
 /**
  * What services and routes receive: the root client, or a transaction opened
  * on it. Both can open a (nested) transaction, so a service never needs to
- * know which one it was handed -- tests rely on that to roll everything back.
+ * know which one it was handed. Tests rely on that to roll everything back.
  */
 export type Database = PgDatabase<PostgresJsQueryResultHKT>
 

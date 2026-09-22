@@ -1,2 +1,6 @@
 export * from './health.ts'
+export * from './members.ts'
+export * from './primitives.ts'
 export * from './problem.ts'
+export * from './spaces.ts'
+export * from './users.ts'

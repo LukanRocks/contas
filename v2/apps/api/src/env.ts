@@ -1,15 +1,15 @@
 import { z } from 'zod'
 import pkg from '../package.json' with { type: 'json' }
 
-/** Compose passes unset variables through as empty strings; treat those as absent. */
-const optional = <T extends z.ZodType>(schema: T) => z.preprocess((v) => (v === '' ? undefined : v), schema.optional())
+/** Compose passes unset variables through as empty strings, so treat those as absent. */
+const optional = <Schema extends z.ZodType>(schema: Schema) => z.preprocess((value) => (value === '' ? undefined : value), schema.optional())
 
 const postgresUrl = z.url({ protocol: /^postgres(ql)?$/ })
 
 const Env = z.object({
   DATABASE_URL: optional(postgresUrl),
   DATABASE_URL_TEST: optional(postgresUrl),
-  PORT: z.preprocess((v) => (v === '' ? undefined : v), z.coerce.number().int().min(1).max(65535).default(3000)),
+  PORT: z.preprocess((value) => (value === '' ? undefined : value), z.coerce.number().int().min(1).max(65535).default(3000)),
   APP_VERSION: optional(z.string().trim().min(1)),
 })
 
@@ -19,7 +19,7 @@ if (!parsed.success) throw new Error(`Invalid environment:\n${z.prettifyError(pa
 
 export const env = {
   ...parsed.data,
-  /** Injected at Docker build time; a plain checkout reports the package version. */
+  /** Injected at Docker build time. A plain checkout reports the package version. */
   version: parsed.data.APP_VERSION ?? pkg.version,
 }
 

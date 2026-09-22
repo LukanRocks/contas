@@ -21,7 +21,7 @@ function withProbeRoutes(app: App): App {
       },
       responses: { 200: { description: 'Echo' } },
     }),
-    (c) => c.json(c.req.valid('json'), 200),
+    (context) => context.json(context.req.valid('json'), 200),
   )
   return app
 }
@@ -31,7 +31,7 @@ const PROBLEM = 'application/problem+json'
 describe('problem+json errors', () => {
   test('an unknown route is 404 not_found', () =>
     withRollback(async ({ app }) => {
-      const res = await call(app, 'GET', '/v1/nope')
+      const res = await call(app, 'GET', '/nope')
       expect(res.status).toBe(404)
       expect(res.headers.get('content-type')).toBe(PROBLEM)
       expect(res.body).toMatchObject({ type: 'about:blank', title: 'Not found', status: 404, code: 'not_found' })

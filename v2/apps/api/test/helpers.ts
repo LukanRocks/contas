@@ -1,6 +1,12 @@
-import { TransactionRollbackError } from 'drizzle-orm'
+import type { Role, Space, User } from '@contas/contracts'
+import { and, asc, eq, sql, TransactionRollbackError } from 'drizzle-orm'
 import { createApp, type App } from '../src/app.ts'
 import type { Database } from '../src/db/client.ts'
+import { auditLog } from '../src/db/schema.ts'
+import type { Actor } from '../src/lib/router.ts'
+import * as members from '../src/modules/members/service.ts'
+import * as spaces from '../src/modules/spaces/service.ts'
+import * as users from '../src/modules/users/service.ts'
 import { testDb } from './db.ts'
 
 export type TestContext = {
@@ -14,8 +20,8 @@ export type TestContext = {
  * Runs `fn` inside a transaction that is always rolled back, so tests never see
  * each other's rows. Transactions the services open become savepoints in it.
  */
-export async function withRollback<T>(fn: (ctx: TestContext) => Promise<T>): Promise<T> {
-  let result!: T
+export async function withRollback<Result>(fn: (context: TestContext) => Promise<Result>): Promise<Result> {
+  let result!: Result
   try {
     await testDb.transaction(async (tx) => {
       result = await fn({ app: createApp({ db: tx }), db: tx })
@@ -25,6 +31,18 @@ export async function withRollback<T>(fn: (ctx: TestContext) => Promise<T>): Pro
     if (!(err instanceof TransactionRollbackError)) throw err
   }
   return result
+}
+
+/**
+ * For tests that must see committed state: `fn` runs against the real pool, and every table but currencies is emptied afterwards.
+ * Nothing else in the suite commits, so this cannot disturb other tests.
+ */
+export async function withCommittedDb<Result>(fn: (context: TestContext) => Promise<Result>): Promise<Result> {
+  try {
+    return await fn({ app: createApp({ db: testDb }), db: testDb })
+  } finally {
+    await testDb.execute(sql`TRUNCATE users, spaces, space_members, accounts, transactions, audit_log CASCADE`)
+  }
 }
 
 export type CallOptions = {
@@ -38,7 +56,7 @@ export type CallOptions = {
 export type CallResult = {
   status: number
   headers: Headers
-  /** Parsed when the response is JSON (including problem+json); null otherwise. */
+  /** Parsed when the response is JSON (including problem+json), null otherwise. */
   body: any
   text: string
 }
@@ -59,3 +77,38 @@ export async function call(app: App, method: string, path: string, opts: CallOpt
   const isJson = /json/.test(res.headers.get('content-type') ?? '')
   return { status: res.status, headers: res.headers, body: isJson && text ? JSON.parse(text) : null, text }
 }
+
+// ---------- factories ----------
+// They go through the services, so the rows they make carry audit entries exactly like ones made through the API.
+
+export const actorOf = (user: User): Actor => ({ id: user.id, name: user.name })
+
+export const createUser = (db: Database, name = 'User') => users.createUser(db, { name }, null)
+
+export const createSpace = (db: Database, owner: User, name = 'Space') => spaces.createSpace(db, { name }, actorOf(owner))
+
+/** Adds `user` to the space as `role`, acting as the space's owner. */
+export const addMember = (db: Database, space: Space, owner: User, user: User, role: Role) =>
+  members.addMember(db, space.id, { user_id: user.id, role }, actorOf(owner))
+
+/** A space with one member of each role, plus a user who belongs to it in no way. */
+export async function createCast(db: Database) {
+  const owner = await createUser(db, 'Owner')
+  const editor = await createUser(db, 'Editor')
+  const viewer = await createUser(db, 'Viewer')
+  const outsider = await createUser(db, 'Outsider')
+  const space = await createSpace(db, owner, 'Cast')
+
+  await addMember(db, space, owner, editor, 'editor')
+  await addMember(db, space, owner, viewer, 'viewer')
+
+  return { owner, editor, viewer, outsider, space }
+}
+
+/** Audit rows for one entity, oldest first. */
+export const auditOf = (db: Database, entityType: (typeof auditLog.$inferSelect)['entityType'], entityId: string) =>
+  db
+    .select()
+    .from(auditLog)
+    .where(and(eq(auditLog.entityType, entityType), eq(auditLog.entityId, entityId)))
+    .orderBy(asc(auditLog.at), asc(auditLog.id))

@@ -9,18 +9,19 @@ const route = createRoute({
   path: '/health',
   tags: ['Health'],
   summary: 'Liveness, including a round trip to Postgres',
+  security: [],
   responses: {
     200: { description: 'Postgres answered', content: { 'application/json': { schema: Health } } },
     503: { description: 'Postgres did not answer', content: { 'application/json': { schema: Health } } },
   },
 })
 
-export const healthRoutes = createRouter().openapi(route, async (c) => {
+export const healthRoutes = createRouter().openapi(route, async (context) => {
   try {
-    await c.var.db.execute(sql`SELECT 1`)
-    return c.json({ status: 'ok' as const, version: env.version }, 200)
+    await context.var.db.execute(sql`SELECT 1`)
+    return context.json({ status: 'ok' as const, version: env.version }, 200)
   } catch (err) {
     console.error('[health] database check failed:', err instanceof Error ? err.message : err)
-    return c.json({ status: 'error' as const, version: env.version }, 503)
+    return context.json({ status: 'error' as const, version: env.version }, 503)
   }
 })

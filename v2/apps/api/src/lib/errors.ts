@@ -21,7 +21,7 @@ const TITLE: Record<ProblemCode, string> = {
   internal_error: 'Internal error',
 }
 
-/** Thrown anywhere below a route; `app.onError` turns it into problem+json. */
+/** Thrown anywhere below a route. `app.onError` turns it into problem+json. */
 export class AppError extends Error {
   override name = 'AppError'
   readonly code: ProblemCode
@@ -49,10 +49,15 @@ export const validationError = (detail?: string, errors?: ProblemFieldError[]) =
 
 /** Schema failures from request parsing, one entry per offending field. */
 export function fromZodError(error: z.ZodError): AppError {
-  const errors = error.issues.map((issue) => ({
-    path: issue.path.map(String).join('.'),
-    message: issue.message,
-  }))
+  const errors = error.issues.flatMap((issue) => {
+    const path = issue.path.map(String)
+
+    // Zod reports every unknown key of an object in one issue, so name each field on its own, like any other error.
+    if (issue.code === 'unrecognized_keys') return issue.keys.map((key) => ({ path: [...path, key].join('.'), message: 'Unknown field.' }))
+
+    return [{ path: path.join('.'), message: issue.message }]
+  })
+
   return validationError('The request does not match the schema.', errors)
 }
 
@@ -73,3 +78,22 @@ export function problemResponse(err: AppError): Response {
     headers: { 'content-type': 'application/problem+json' },
   })
 }
+
+/**
+ * The SQLSTATE of a Postgres error, if `err` is or wraps one.
+ * Drizzle wraps driver errors, so this walks the `cause` chain.
+ */
+export function pgErrorCode(err: unknown): string | undefined {
+  for (let current = err; current instanceof Error; current = current.cause) {
+    if (current.name === 'PostgresError' && 'code' in current && typeof current.code === 'string') return current.code
+  }
+
+  return undefined
+}
+
+/**
+ * The SQLSTATE Postgres raises when a write would duplicate a primary key, unique constraint or unique index.
+ * SQLSTATEs are fixed five-character codes from the SQL standard and Postgres, where class 23 is integrity constraint violations.
+ * This one is named unique_violation in the Postgres manual's "PostgreSQL Error Codes" appendix.
+ */
+export const UNIQUE_VIOLATION = '23505'
