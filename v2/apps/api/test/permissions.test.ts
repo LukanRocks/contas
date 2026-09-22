@@ -27,7 +27,7 @@ async function createFeira({ space, owner }: Cast, db: Database) {
 const readers: Who[] = ['viewer', 'editor', 'owner']
 const writers: Who[] = ['editor', 'owner']
 
-// §8.2, for the actions that exist so far. Balances and the audit log join as they land.
+// §8.2, for the actions that exist so far. The audit log joins in the next milestone.
 const CASES: Case[] = [
   {
     action: 'read the space',
@@ -170,6 +170,35 @@ const CASES: Case[] = [
     },
     allowed: writers,
     ok: 204,
+  },
+  {
+    action: "read an account's balance",
+    request: async ({ space, owner }, db) => {
+      const account = await createAccount(db, space, owner, { name: 'Nubank' })
+
+      return { method: 'GET', path: `/v1/spaces/${space.id}/accounts/${account.id}/balance` }
+    },
+    allowed: readers,
+    ok: 200,
+  },
+  {
+    // A POST, but a read: viewers may send it.
+    action: "read an account's balance history",
+    request: async ({ space, owner }, db) => {
+      const account = await createAccount(db, space, owner, { name: 'Nubank' })
+
+      const body = { edges: ['2026-06-01T03:00:00Z', '2026-07-01T03:00:00Z'] }
+
+      return { method: 'POST', path: `/v1/spaces/${space.id}/accounts/${account.id}/balance-history`, body }
+    },
+    allowed: readers,
+    ok: 200,
+  },
+  {
+    action: "read the space's balances",
+    request: async ({ space }) => ({ method: 'GET', path: `/v1/spaces/${space.id}/balances` }),
+    allowed: readers,
+    ok: 200,
   },
   {
     action: 'delete the space',

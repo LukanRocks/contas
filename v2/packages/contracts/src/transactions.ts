@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { CurrencyCode } from './currencies.ts'
-import { boundedName, hasNoNul, MinorUnits, Timestamp, UtcTimestamp, Uuid } from './primitives.ts'
+import { boundedName, emptyAsAbsent, hasNoNul, MinorUnits, Timestamp, UtcTimestamp, Uuid } from './primitives.ts'
 
 export const Transaction = z
   .object({
@@ -73,9 +73,6 @@ export const TransactionList = z
   })
   .meta({ id: 'TransactionList' })
 export type TransactionList = z.infer<typeof TransactionList>
-
-/** An absent query parameter and an empty one (`?q=`) mean the same thing. */
-const emptyAsAbsent = <Schema extends z.ZodType>(schema: Schema) => z.preprocess((value) => (value === '' ? undefined : value), schema.optional())
 
 export const PageQuery = {
   cursor: emptyAsAbsent(z.string()).meta({ description: 'The next_cursor of the previous page.' }),

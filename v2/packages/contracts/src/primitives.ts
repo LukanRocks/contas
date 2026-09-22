@@ -28,6 +28,9 @@ export const UtcTimestamp = z
   .refine(isRealInstant, 'Must be a real date and time.')
   .meta({ example: '2026-09-20T17:30:00Z' })
 
+/** For query parameters: an absent one and an empty one (`?q=`) mean the same thing. */
+export const emptyAsAbsent = <Schema extends z.ZodType>(schema: Schema) => z.preprocess((value) => (value === '' ? undefined : value), schema.optional())
+
 /** The largest value Postgres' bigint holds: 2^63 - 1. */
 export const INT64_MAX = 9223372036854775807n
 
@@ -51,6 +54,12 @@ export const SignedMinorUnits = z
     return amount <= INT64_MAX && amount >= -INT64_MAX
   }, `Must be between -${INT64_MAX} and ${INT64_MAX}.`)
   .meta({ example: '320000', description: 'Signed integer minor units of the currency, as a string.' })
+
+/**
+ * A computed amount, e.g. a balance or a period's inflow: signed integer minor units, as a string.
+ * Unlike stored values it has no 64-bit bound, because a sum of many bigints can exceed one.
+ */
+export const Amount = z.string().meta({ description: 'Signed integer minor units, as a string.', example: '-73550' })
 
 /** Postgres text cannot hold NUL, so strings that would reach it are checked for one rather than failing in the database. */
 export const hasNoNul = (value: string) => !value.includes('\u0000')

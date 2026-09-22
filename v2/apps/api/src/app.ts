@@ -10,6 +10,7 @@ import { actingUser } from './middleware/acting-user.ts'
 import { spaceAccess } from './middleware/space-access.ts'
 
 import { accountRoutes } from './modules/accounts/routes.ts'
+import { balanceRoutes } from './modules/balances/routes.ts'
 import { currencyRoutes } from './modules/currencies/routes.ts'
 import { healthRoutes } from './modules/health/routes.ts'
 import { memberRoutes } from './modules/members/routes.ts'
@@ -41,6 +42,7 @@ export function createApp({ db }: { db: Database }) {
   app.route('/', currencyRoutes)
   app.route('/', accountRoutes)
   app.route('/', transactionRoutes)
+  app.route('/', balanceRoutes)
 
   app.openAPIRegistry.registerComponent('securitySchemes', 'ActingUser', {
     type: 'apiKey',
