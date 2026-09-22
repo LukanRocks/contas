@@ -54,3 +54,20 @@ mobile/       the Expo app (see mobile/README.md)
 assets/       the logo and the icon sources (see assets/README.md)
 .github/      one workflow per project
 ```
+
+## License
+
+Copyright (C) 2026 Lukan Vanderlinde
+
+Contas is free software: you can redistribute it and/or modify it under the
+terms of the GNU Affero General Public License as published by the Free
+Software Foundation, version 3 only (`AGPL-3.0-only`). See [LICENSE](LICENSE).
+
+It comes without any warranty, to the extent permitted by law.
+
+The AGPL keeps every version open, including ones that only run on a server.
+If you modify Contas and let people use it over a network, you must offer
+those users the source of your version.
+
+Up to commit `d1bcd92` the project was released under the MIT license, and
+copies of those versions remain available under MIT.
