@@ -43,7 +43,8 @@
           "microphonePermission": false,
           "recordAudioAndroid": false
         }
-      ]
+      ],
+      "./plugins/withDisableScriptSandboxing"
     ],
     "web": {
       "favicon": "./assets/favicon.png"

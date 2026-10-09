@@ -11,7 +11,7 @@
   "description": "React Native (Expo) client for @contas/backend — iOS and Android",
   "scripts": {
     "ios": "expo run:ios",
-    "ios:device": "expo run:ios --device --configuration Release",
+    "ios:release": "expo run:ios --device --configuration Release",
     "android": "expo run:android",
     "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test test/*.test.ts",
     "typecheck": "tsc --noEmit"

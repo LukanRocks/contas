@@ -11,7 +11,7 @@ cd mobile
 pnpm install
 pnpm ios          # debug build on the iOS simulator, then Metro
 pnpm android      # the same on the Android emulator
-pnpm ios:device   # release build on a connected iPhone; asks which device
+pnpm ios:release  # release build on a connected iPhone; asks which device
 ```
 
 ```bash
@@ -21,7 +21,7 @@ pnpm typecheck
 
 A debug build has no JS in it: it loads the bundle from Metro on this machine
 at every launch, and fails with "No script URL provided" when Metro is not
-running or the device cannot reach it. `ios:device` is a release build, with
+running or the device cannot reach it. `ios:release` is a release build, with
 the bundle embedded, so the phone runs it on its own; it only needs to reach
 your server. Signed with a free Apple ID, that install stops opening after
 7 days and has to be built again.
